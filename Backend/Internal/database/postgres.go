@@ -23,7 +23,6 @@ func ConnectDB(cfg *configs.Config) {
 		log.Fatal("Failed to connect to database: ", err)
 	}
 
-	// This builds all 5 tables at once
 	err = DB.AutoMigrate(
 		&models.User{},
 		&models.Book{},
