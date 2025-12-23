@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
 	"github.com/Aiswaryar123/ReadingTrackerProject/configs"
 
 	"gorm.io/driver/postgres"
@@ -18,10 +19,22 @@ func ConnectDB(cfg *configs.Config) {
 
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
 	if err != nil {
 		log.Fatal("Failed to connect to database: ", err)
 	}
 
-	log.Println("Database connection successful!")
+	// This builds all 5 tables at once
+	err = DB.AutoMigrate(
+		&models.User{},
+		&models.Book{},
+		&models.ReadingProgress{},
+		&models.Review{},
+		&models.ReadingGoal{},
+	)
+
+	if err != nil {
+		log.Fatal("Failed to migrate database: ", err)
+	}
+
+	log.Println("Database connection successful and 5 Tables created!")
 }
