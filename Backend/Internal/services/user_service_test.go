@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/dto"
@@ -74,12 +75,13 @@ func TestRegister_DuplicateEmail(t *testing.T) {
 }
 
 func TestLogin_Success(t *testing.T) {
+	os.Setenv("JWT_SECRET", "test_secret")
 
 	pass := "secret123"
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	repo := &FakeUserRepo{
 		Users: []models.User{
-			{Email: "login@example.com", Password: string(hashed)},
+			{ID: 1, Email: "login@example.com", Password: string(hashed)},
 		},
 	}
 	service := NewUserService(repo)
@@ -89,16 +91,16 @@ func TestLogin_Success(t *testing.T) {
 		Password: "secret123",
 	}
 
-	user, err := service.Login(req)
+	token, err := service.Login(req)
 
 	if err != nil {
 		t.Errorf("Expected successful login, but got error: %v", err)
 	}
-	if user.Email != "login@example.com" {
-		t.Errorf("Expected user email to match login email")
+
+	if token == "" {
+		t.Errorf("Expected a JWT token string, but got an empty string")
 	}
 }
-
 func TestLogin_WrongPassword(t *testing.T) {
 
 	hashed, _ := bcrypt.GenerateFromPassword([]byte("realpass"), bcrypt.DefaultCost)
