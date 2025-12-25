@@ -11,28 +11,37 @@ import (
 )
 
 func main() {
+	// 1. Load Configuration and Connect to Database
 	cfg := configs.LoadConfig()
 	database.ConnectDB(cfg)
 
-	// repositories
+	// 2. Repositories (The "Hands")
+	// We create one for each table in our database
 	userRepo := repository.NewUserRepository(database.DB)
 	bookRepo := repository.NewBookRepository(database.DB)
 	progressRepo := repository.NewProgressRepository(database.DB)
+	reviewRepo := repository.NewReviewRepository(database.DB) // NEW: Review Repo
 
-	// services
+	// 3. Services (The "Brains")
+	// Note: progressService and reviewService both need bookRepo to check ownership!
 	userService := services.NewUserService(userRepo)
 	bookService := services.NewBookService(bookRepo)
-	// linking
 	progressService := services.NewProgressService(progressRepo, bookRepo)
+	reviewService := services.NewReviewService(reviewRepo, bookRepo) // NEW: Review Service
 
-	// handlers
+	// 4. Handlers (The "Waiters")
+	// These will receive the HTTP requests
 	userHandler := handlers.NewUserHandler(userService)
 	bookHandler := handlers.NewBookHandler(bookService)
 	progressHandler := handlers.NewProgressHandler(progressService)
+	reviewHandler := handlers.NewReviewHandler(reviewService) // NEW: Review Handler
 
-	//  engine & routes
+	// 5. Engine & Routes
 	r := gin.Default()
-	routes.RegisterRoutes(r, userHandler, bookHandler, progressHandler)
 
+	// We pass all 4 handlers to the routes file to map them to URLs
+	routes.RegisterRoutes(r, userHandler, bookHandler, progressHandler, reviewHandler)
+
+	// 6. Run the Server
 	r.Run(":" + cfg.Port)
 }

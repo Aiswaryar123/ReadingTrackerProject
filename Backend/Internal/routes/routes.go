@@ -11,6 +11,7 @@ func RegisterRoutes(
 	userHandler *handlers.UserHandler,
 	bookHandler *handlers.BookHandler,
 	progressHandler *handlers.ProgressHandler,
+	reviewHandler *handlers.ReviewHandler,
 ) {
 
 	r.POST("/register", userHandler.Register)
@@ -30,5 +31,8 @@ func RegisterRoutes(
 
 		protected.GET("/books/:id/progress", progressHandler.GetProgress)
 		protected.PUT("/books/:id/progress", progressHandler.UpdateProgress)
+		//review
+		protected.POST("/books/:id/reviews", reviewHandler.AddReview)
+		protected.GET("/books/:id/reviews", reviewHandler.GetReviews)
 	}
 }
