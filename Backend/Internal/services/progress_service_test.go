@@ -12,6 +12,9 @@ type FakeProgressRepo struct {
 	SavedData *models.ReadingProgress
 }
 
+func (f *FakeBookRepoForProgress) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
+	return dto.DashboardStats{}, nil
+}
 func (f *FakeProgressRepo) GetByBookID(id uint) (*models.ReadingProgress, error) {
 	if f.SavedData == nil {
 		return nil, errors.New("record not found")

@@ -29,6 +29,9 @@ type FakeReviewRepo struct {
 	SavedReview *models.Review
 }
 
+func (f *FakeBookRepoForReview) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
+	return dto.DashboardStats{}, nil
+}
 func (f *FakeReviewRepo) CreateReview(r *models.Review) error {
 	f.SavedReview = r
 	return nil

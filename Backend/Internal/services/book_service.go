@@ -12,6 +12,7 @@ type BookService interface {
 	UpdateBook(bookID uint, userID uint, req dto.UpdateBookRequest) error
 	DeleteBook(bookID uint, userID uint) error
 	GetSingleBook(bookID uint, userID uint) (*models.Book, error)
+	GetDashboardStats(userID uint) (dto.DashboardStats, error)
 }
 
 type bookService struct {
@@ -55,4 +56,7 @@ func (s *bookService) DeleteBook(bookID uint, userID uint) error {
 }
 func (s *bookService) GetSingleBook(bookID uint, userID uint) (*models.Book, error) {
 	return s.repo.GetBookByID(bookID, userID)
+}
+func (s *bookService) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
+	return s.repo.GetDashboardStats(userID)
 }

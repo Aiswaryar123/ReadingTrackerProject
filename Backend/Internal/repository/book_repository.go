@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/dto"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
 	"gorm.io/gorm"
 )
@@ -11,6 +12,7 @@ type BookRepository interface {
 	GetBookByID(bookID uint, userID uint) (*models.Book, error)
 	UpdateBook(bookID uint, userID uint, book *models.Book) error
 	DeleteBook(bookID uint, userID uint) error
+	GetDashboardStats(userID uint) (dto.DashboardStats, error)
 }
 
 type bookRepository struct {
@@ -47,4 +49,26 @@ func (r *bookRepository) UpdateBook(bookID uint, userID uint, book *models.Book)
 func (r *bookRepository) DeleteBook(bookID uint, userID uint) error {
 
 	return r.db.Where("id = ? AND user_id = ?", bookID, userID).Delete(&models.Book{}).Error
+}
+func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
+	var stats dto.DashboardStats
+
+	r.db.Model(&models.Book{}).Where("user_id = ?", userID).Count(&stats.TotalBooks)
+
+	r.db.Table("reading_progresses").
+		Joins("JOIN books ON books.id = reading_progresses.book_id").
+		Where("books.user_id = ? AND reading_progresses.status = ?", userID, "Completed").
+		Count(&stats.BooksFinished)
+
+	r.db.Table("reading_progresses").
+		Joins("JOIN books ON books.id = reading_progresses.book_id").
+		Where("books.user_id = ? AND reading_progresses.status = ?", userID, "Reading").
+		Count(&stats.CurrentlyReading)
+
+	r.db.Table("reviews").
+		Joins("JOIN books ON books.id = reviews.book_id").
+		Where("books.user_id = ?", userID).
+		Select("COALESCE(AVG(rating), 0)").Scan(&stats.AverageRating)
+
+	return stats, nil
 }

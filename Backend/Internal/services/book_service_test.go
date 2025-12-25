@@ -14,6 +14,10 @@ type FakeBookRepo struct {
 	Err   error
 }
 
+func (f *FakeBookRepo) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
+
+	return dto.DashboardStats{}, nil
+}
 func (f *FakeBookRepo) CreateBook(b *models.Book) error {
 	if f.Err != nil {
 		return f.Err

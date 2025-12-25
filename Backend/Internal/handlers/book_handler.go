@@ -91,3 +91,17 @@ func (h *BookHandler) GetBook(c *gin.Context) {
 
 	c.JSON(http.StatusOK, book)
 }
+
+func (h *BookHandler) GetDashboard(c *gin.Context) {
+
+	val, _ := c.Get("user_id")
+	userID := val.(uint)
+
+	stats, err := h.service.GetDashboardStats(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate dashboard stats"})
+		return
+	}
+
+	c.JSON(http.StatusOK, stats)
+}
