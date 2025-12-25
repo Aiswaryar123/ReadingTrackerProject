@@ -10,6 +10,7 @@ func RegisterRoutes(
 	r *gin.Engine,
 	userHandler *handlers.UserHandler,
 	bookHandler *handlers.BookHandler,
+	progressHandler *handlers.ProgressHandler,
 ) {
 
 	r.POST("/register", userHandler.Register)
@@ -18,11 +19,16 @@ func RegisterRoutes(
 	protected := r.Group("/api")
 	protected.Use(middleware.AuthMiddleware())
 	{
-
+		// book CRUD
 		protected.POST("/books", bookHandler.AddBook)
 		protected.GET("/books", bookHandler.ListBooks)
+		protected.GET("/books/:id", bookHandler.GetBook)
 		protected.PUT("/books/:id", bookHandler.UpdateBook)
 		protected.DELETE("/books/:id", bookHandler.DeleteBook)
-		protected.GET("/books/:id", bookHandler.GetBook)
+
+		// Reading Progress
+
+		protected.GET("/books/:id/progress", progressHandler.GetProgress)
+		protected.PUT("/books/:id/progress", progressHandler.UpdateProgress)
 	}
 }
