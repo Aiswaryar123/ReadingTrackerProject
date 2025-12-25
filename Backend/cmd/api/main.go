@@ -11,37 +11,46 @@ import (
 )
 
 func main() {
-	// 1. Load Configuration and Connect to Database
+	// 1. Load Configuration (Secrets from .env)
 	cfg := configs.LoadConfig()
+
+	// 2. Connect to Database (Create tables)
 	database.ConnectDB(cfg)
 
-	// 2. Repositories (The "Hands")
-	// We create one for each table in our database
+	// 3. Initialize Repositories (The "Hands")
+	// These handle direct SQL/GORM communication with the database
 	userRepo := repository.NewUserRepository(database.DB)
 	bookRepo := repository.NewBookRepository(database.DB)
 	progressRepo := repository.NewProgressRepository(database.DB)
-	reviewRepo := repository.NewReviewRepository(database.DB) // NEW: Review Repo
+	reviewRepo := repository.NewReviewRepository(database.DB)
+	goalRepo := repository.NewGoalRepository(database.DB) // NEW: Goal Repo
 
-	// 3. Services (The "Brains")
-	// Note: progressService and reviewService both need bookRepo to check ownership!
+	// 4. Initialize Services (The "Brains")
+	// These handle the logic and check security rules
 	userService := services.NewUserService(userRepo)
 	bookService := services.NewBookService(bookRepo)
-	progressService := services.NewProgressService(progressRepo, bookRepo)
-	reviewService := services.NewReviewService(reviewRepo, bookRepo) // NEW: Review Service
 
-	// 4. Handlers (The "Waiters")
-	// These will receive the HTTP requests
+	// Note: Progress and Review services need bookRepo to check ownership!
+	progressService := services.NewProgressService(progressRepo, bookRepo)
+	reviewService := services.NewReviewService(reviewRepo, bookRepo)
+
+	goalService := services.NewGoalService(goalRepo) // NEW: Goal Service
+
+	// 5. Initialize Handlers (The "Waiters")
+	// These receive the web requests and send back JSON responses
 	userHandler := handlers.NewUserHandler(userService)
 	bookHandler := handlers.NewBookHandler(bookService)
 	progressHandler := handlers.NewProgressHandler(progressService)
-	reviewHandler := handlers.NewReviewHandler(reviewService) // NEW: Review Handler
+	reviewHandler := handlers.NewReviewHandler(reviewService)
+	goalHandler := handlers.NewGoalHandler(goalService) // NEW: Goal Handler
 
-	// 5. Engine & Routes
+	// 6. Initialize Gin Web Engine
 	r := gin.Default()
 
-	// We pass all 4 handlers to the routes file to map them to URLs
-	routes.RegisterRoutes(r, userHandler, bookHandler, progressHandler, reviewHandler)
+	// 7. Register All Routes
+	// We pass all 5 handlers so the Map (routes.go) can connect them to URLs
+	routes.RegisterRoutes(r, userHandler, bookHandler, progressHandler, reviewHandler, goalHandler)
 
-	// 6. Run the Server
+	// 8. Start the Server
 	r.Run(":" + cfg.Port)
 }
