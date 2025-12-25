@@ -20,9 +20,13 @@ func main() {
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
+	bookRepo := repository.NewBookRepository(database.DB)
+	bookService := services.NewBookService(bookRepo)
+	bookHandler := handlers.NewBookHandler(bookService)
+
 	r := gin.Default()
 
-	routes.RegisterRoutes(r, userHandler)
+	routes.RegisterRoutes(r, userHandler, bookHandler)
 
 	r.Run(":" + cfg.Port)
 }
