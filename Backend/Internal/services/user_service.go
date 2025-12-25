@@ -59,7 +59,6 @@ func (s *userService) Login(req dto.LoginRequest) (string, error) {
 		return "", errors.New("invalid email or password")
 	}
 
-	// NEW: Generate the Passport (Token)
 	token, err := utils.GenerateToken(user.ID)
 	if err != nil {
 		return "", errors.New("failed to generate token")

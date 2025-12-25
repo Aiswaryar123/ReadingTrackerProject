@@ -1,0 +1,52 @@
+package services
+
+import (
+	"errors"
+
+	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/dto"
+	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
+	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/repository"
+)
+
+type ReviewService interface {
+	AddReview(userID uint, bookID uint, req dto.CreateReviewRequest) error
+	GetBookReviews(userID uint, bookID uint) ([]models.Review, error)
+}
+
+type reviewService struct {
+	repo     repository.ReviewRepository
+	bookRepo repository.BookRepository
+}
+
+func NewReviewService(repo repository.ReviewRepository, bookRepo repository.BookRepository) ReviewService {
+	return &reviewService{
+		repo:     repo,
+		bookRepo: bookRepo,
+	}
+}
+
+func (s *reviewService) AddReview(userID uint, bookID uint, req dto.CreateReviewRequest) error {
+
+	_, err := s.bookRepo.GetBookByID(bookID, userID)
+	if err != nil {
+		return errors.New("cannot review: book not found or access denied")
+	}
+
+	review := &models.Review{
+		BookID:  bookID,
+		Rating:  req.Rating,
+		Comment: req.Comment,
+	}
+
+	return s.repo.CreateReview(review)
+}
+
+func (s *reviewService) GetBookReviews(userID uint, bookID uint) ([]models.Review, error) {
+
+	_, err := s.bookRepo.GetBookByID(bookID, userID)
+	if err != nil {
+		return nil, errors.New("access denied")
+	}
+
+	return s.repo.GetReviewsByBookID(bookID)
+}
