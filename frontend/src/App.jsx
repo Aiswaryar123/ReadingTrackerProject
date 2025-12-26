@@ -5,13 +5,19 @@ import {
   Navigate,
 } from "react-router-dom";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<div>Login Page</div>} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/dashboard"
+          element={<div>Welcome to your Dashboard</div>}
+        />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
