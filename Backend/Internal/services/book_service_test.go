@@ -15,8 +15,11 @@ type FakeBookRepo struct {
 }
 
 func (f *FakeBookRepo) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
-
-	return dto.DashboardStats{}, nil
+	// This is the "Fake" data we will check for in our test
+	return dto.DashboardStats{
+		TotalBooks:    5,
+		AverageRating: 4.0,
+	}, nil
 }
 func (f *FakeBookRepo) CreateBook(b *models.Book) error {
 	if f.Err != nil {
@@ -186,5 +189,24 @@ func TestDeleteBook_Failure(t *testing.T) {
 
 	if err == nil {
 		t.Errorf("Expected error, got nil")
+	}
+}
+func TestGetDashboardStats_Success(t *testing.T) {
+
+	repo := &FakeBookRepo{}
+	service := NewBookService(repo)
+
+	stats, err := service.GetDashboardStats(1)
+
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+
+	if stats.TotalBooks != 5 {
+		t.Errorf("Expected 5 books (from FakeRepo), but got %d", stats.TotalBooks)
+	}
+
+	if stats.AverageRating != 4.0 {
+		t.Errorf("Expected rating 4.0, but got %f", stats.AverageRating)
 	}
 }
