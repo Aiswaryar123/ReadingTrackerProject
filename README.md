@@ -1,4 +1,4 @@
-Reading Tracker Backend
+Reading Tracker
 
 Reading Tracker is a backend REST API built with Go to manage books and track reading progress.  
 This project follows a clean architecture approach using Gin, GORM, and PostgreSQL.
