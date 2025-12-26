@@ -3,11 +3,12 @@ package main
 import (
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/database"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/handlers"
+	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/middleware"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/repository"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/routes"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/services"
 	"github.com/Aiswaryar123/ReadingTrackerProject/configs"
-	"github.com/gin-contrib/cors"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,8 +37,7 @@ func main() {
 	goalHandler := handlers.NewGoalHandler(goalService)
 
 	r := gin.Default()
-
-	r.Use(cors.Default())
+	r.Use(middleware.CORSMiddleware())
 
 	routes.RegisterRoutes(r, userHandler, bookHandler, progressHandler, reviewHandler, goalHandler)
 
