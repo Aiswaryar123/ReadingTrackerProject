@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AddBook from "./pages/AddBook";
+import MyBooks from "./pages/MyBooks";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
 
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/add-book" element={<AddBook />} />
+        <Route path="/books" element={<MyBooks />} />
       </Routes>
     </Router>
   );
