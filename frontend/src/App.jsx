@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
@@ -14,11 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/dashboard"
-          element={<div>Welcome to your Dashboard</div>}
-        />
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
