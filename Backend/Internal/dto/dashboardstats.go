@@ -5,4 +5,5 @@ type DashboardStats struct {
 	BooksFinished    int64   `json:"books_finished"`
 	CurrentlyReading int64   `json:"currently_reading"`
 	AverageRating    float64 `json:"average_rating"`
+	GoalTarget       int     `json:"goal_target"`
 }

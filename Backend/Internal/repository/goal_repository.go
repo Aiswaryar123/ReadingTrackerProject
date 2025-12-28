@@ -32,10 +32,9 @@ func (r *goalRepository) GetGoal(userID uint, year int) (*models.ReadingGoal, er
 
 func (r *goalRepository) CountFinishedBooks(userID uint, year int) (int64, error) {
 	var count int64
-
 	err := r.db.Table("reading_progresses").
 		Joins("JOIN books ON books.id = reading_progresses.book_id").
-		Where("books.user_id = ? AND reading_progresses.status = ?", userID, "Completed").
+		Where("books.user_id = ? AND reading_progresses.status = ?", userID, "Finished").
 		Count(&count).Error
 	return count, err
 }
