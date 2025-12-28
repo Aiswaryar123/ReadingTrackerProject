@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/dto"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
@@ -27,31 +28,34 @@ func NewProgressService(repo repository.ProgressRepository, bookRepo repository.
 
 func (s *progressService) UpdateProgress(userID uint, bookID uint, req dto.UpdateProgressRequest) error {
 
-	_, err := s.bookRepo.GetBookByID(bookID, userID)
+	book, err := s.bookRepo.GetBookByID(bookID, userID)
 	if err != nil {
 		return errors.New("access denied: you do not own this book")
 	}
 
+	if req.CurrentPage > book.TotalPages {
+		return fmt.Errorf("invalid page: this book only has %d pages", book.TotalPages)
+	}
+
+	if req.Status == "Finished" && req.CurrentPage < book.TotalPages {
+		return fmt.Errorf("cannot set to 'Finished': you have only read %d out of %d pages", req.CurrentPage, book.TotalPages)
+	}
+
 	progress, err := s.repo.GetByBookID(bookID)
 	if err != nil {
-
 		progress = &models.ReadingProgress{BookID: bookID}
 	}
 
-	//  update data
 	progress.CurrentPage = req.CurrentPage
 	progress.Status = req.Status
 
-	//  Save
 	return s.repo.Save(progress)
 }
 
 func (s *progressService) GetProgress(userID uint, bookID uint) (*models.ReadingProgress, error) {
-	// check ownership
 	_, err := s.bookRepo.GetBookByID(bookID, userID)
 	if err != nil {
 		return nil, errors.New("access denied")
 	}
-
 	return s.repo.GetByBookID(bookID)
 }
