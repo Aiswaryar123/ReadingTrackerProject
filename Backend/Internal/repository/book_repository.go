@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/dto"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
 	"gorm.io/gorm"
@@ -49,7 +51,8 @@ func (r *bookRepository) DeleteBook(id uint, userID uint) error {
 
 func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
 	var stats dto.DashboardStats
-	currentYear := 2025
+
+	currentYear := time.Now().Year()
 
 	r.db.Model(&models.Book{}).Where("user_id = ?", userID).Count(&stats.TotalBooks)
 
@@ -69,7 +72,6 @@ func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, err
 		Select("COALESCE(AVG(rating), 0)").Scan(&stats.AverageRating)
 
 	var goal models.ReadingGoal
-
 	r.db.Where("user_id = ? AND year = ?", userID, currentYear).First(&goal)
 	stats.GoalTarget = goal.TargetBooks
 
