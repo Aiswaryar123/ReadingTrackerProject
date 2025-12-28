@@ -16,88 +16,106 @@ function MyBooks() {
   const fetchBooks = async () => {
     try {
       const response = await api.get("/api/books");
-
       setBooks(response.data.data || []);
       setLoading(false);
     } catch (err) {
-      setError("Failed to fetch books. Please try again.");
+      setError("Failed to fetch books.");
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to remove this book?")) {
+    if (window.confirm("Delete this book?")) {
       try {
         await api.delete(`/api/books/${id}`);
-
         setBooks(books.filter((book) => book.id !== id));
       } catch (err) {
-        alert("Failed to delete the book.");
+        alert("Failed to delete.");
       }
     }
+  };
+
+  const renderStatusBadge = (progress) => {
+    const status = progress?.status || "Want to Read";
+
+    if (status === "Finished") {
+      return (
+        <span className="bg-green-100 text-green-700 border border-green-200 text-[10px] uppercase font-black px-2 py-1 rounded">
+          Finished
+        </span>
+      );
+    }
+
+    if (status === "Currently Reading" || status === "Reading") {
+      return (
+        <span className="bg-purple-100 text-purple-700 border border-purple-200 text-[10px] uppercase font-black px-2 py-1 rounded">
+          Currently Reading
+        </span>
+      );
+    }
+
+    return (
+      <span className="bg-gray-100 text-gray-500 border border-gray-200 text-[10px] uppercase font-black px-2 py-1 rounded">
+        Want to Read
+      </span>
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-
       <main className="max-w-7xl mx-auto py-10 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Library</h1>
+        <div className="flex justify-between items-center mb-10">
+          <h1 className="text-3xl font-bold text-gray-900">My Bookshelf</h1>
           <button
             onClick={() => navigate("/add-book")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition"
+            className="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold"
           >
-            + Add New Book
+            + Add Book
           </button>
         </div>
 
-        {error && (
-          <p className="text-red-500 bg-red-50 p-4 rounded-lg mb-6">{error}</p>
-        )}
-
         {loading ? (
-          <p className="text-center text-gray-500">Loading your books...</p>
-        ) : books.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-dashed border-gray-300">
-            <p className="text-gray-500 mb-4">Your library is empty.</p>
-            <button
-              onClick={() => navigate("/add-book")}
-              className="text-blue-600 font-semibold"
-            >
-              Add your first book now →
-            </button>
-          </div>
+          <p className="text-center text-gray-400">Loading library...</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {books.map((book) => (
               <div
                 key={book.id}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition"
+                className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col"
               >
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800">
+                    <h3 className="text-lg font-bold text-gray-800">
                       {book.title}
                     </h3>
-                    <p className="text-gray-600 italic">by {book.author}</p>
+                    <p className="text-gray-500 text-sm">{book.author}</p>
                   </div>
-                  <span className="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded font-bold uppercase">
-                    {book.total_pages} Pages
+                  <span className="text-xs font-bold text-gray-400 uppercase">
+                    {book.total_pages} Pgs
                   </span>
                 </div>
 
-                <div className="flex gap-3 mt-6">
+                <div className="mt-2 mb-6">
+                  {renderStatusBadge(book.progress)}
+                </div>
+
+                <div className="flex gap-2 mt-auto">
                   <button
                     onClick={() => navigate(`/books/${book.id}/progress`)}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-semibold transition"
+                    className="flex-1 bg-gray-900 text-white text-xs py-2.5 rounded-lg font-bold"
                   >
-                    Update Progress
+                    Track
+                  </button>
+                  <button
+                    onClick={() => navigate(`/books/${book.id}/review`)}
+                    className="flex-1 bg-yellow-400 text-yellow-900 text-xs py-2.5 rounded-lg font-bold"
+                  >
+                    Review
                   </button>
                   <button
                     onClick={() => handleDelete(book.id)}
-                    className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition"
-                    title="Delete Book"
+                    className="bg-red-50 text-red-600 p-2.5 rounded-lg"
                   >
                     🗑️
                   </button>

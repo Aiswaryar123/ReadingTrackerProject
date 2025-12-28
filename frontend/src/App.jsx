@@ -10,17 +10,24 @@ import Dashboard from "./pages/Dashboard";
 import AddBook from "./pages/AddBook";
 import MyBooks from "./pages/MyBooks";
 import UpdateProgress from "./pages/UpdateProgress";
+import Review from "./pages/Review";
+import ReadingGoals from "./pages/ReadingGoals";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/books/:id/progress" element={<UpdateProgress />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/add-book" element={<AddBook />} />
         <Route path="/books" element={<MyBooks />} />
+
+        <Route path="/goals" element={<ReadingGoals />} />
+
+        <Route path="/books/:id/review" element={<Review />} />
       </Routes>
     </Router>
   );

@@ -7,6 +7,9 @@ function AddBook() {
   const [formData, setFormData] = useState({
     title: "",
     author: "",
+    isbn: "",
+    genre: "",
+    publication_year: "",
     total_pages: "",
   });
   const [error, setError] = useState("");
@@ -25,16 +28,15 @@ function AddBook() {
     try {
       await api.post("/api/books", {
         ...formData,
-        total_pages: parseInt(formData.total_pages),
+
+        publication_year: parseInt(formData.publication_year) || 0,
+        total_pages: parseInt(formData.total_pages) || 0,
       });
 
       alert("Book added successfully!");
-
       navigate("/books");
     } catch (err) {
-      setError(
-        err.response?.data?.error || "Failed to add book. Please try again."
-      );
+      setError(err.response?.data?.error || "Failed to add book.");
     } finally {
       setIsSubmitting(false);
     }
@@ -44,84 +46,119 @@ function AddBook() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <main className="max-w-2xl mx-auto py-12 px-4">
-        <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
-          <div className="bg-blue-600 p-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <span>📖</span> Add a New Book
+      <main className="max-w-3xl mx-auto py-12 px-4">
+        <div className="bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-100">
+          <div className="bg-blue-600 p-8 text-white">
+            <h2 className="text-3xl font-black uppercase tracking-tighter">
+              Add to Library
             </h2>
-            <p className="text-blue-100 text-sm mt-1">
-              Fill in the details to expand your digital library.
+            <p className="text-blue-100 text-sm">
+              Enter the details of your new book below.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 text-red-700 text-sm">
+              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold border border-red-100">
                 {error}
               </div>
             )}
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
                   Book Title *
                 </label>
                 <input
                   type="text"
                   name="title"
-                  placeholder="e.g. Atomic Habits"
-                  onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="e.g. The Alchemist"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Author Name *
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                  Author *
                 </label>
                 <input
                   type="text"
                   name="author"
-                  placeholder="e.g. James Clear"
-                  onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="Paulo Coelho"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                  ISBN (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="isbn"
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="978-0123456789"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                  Genre
+                </label>
+                <input
+                  type="text"
+                  name="genre"
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="Fiction / Adventure"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                  Year Published
+                </label>
+                <input
+                  type="number"
+                  name="publication_year"
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="1988"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
                   Total Pages *
                 </label>
                 <input
                   type="number"
                   name="total_pages"
-                  placeholder="e.g. 320"
-                  onChange={handleChange}
                   required
-                  min="1"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="163"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-4 pt-4">
+            <div className="flex gap-4 pt-4">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transform transition active:scale-95 ${
-                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-lg transition active:scale-95 disabled:opacity-50 uppercase tracking-widest text-sm"
               >
-                {isSubmitting ? "Saving..." : "Save to Library"}
+                {isSubmitting ? "Adding..." : "Add to Shelf"}
               </button>
-
               <button
                 type="button"
-                onClick={() => navigate("/dashboard")}
-                className="px-6 py-3 text-gray-600 font-semibold hover:bg-gray-100 rounded-lg transition"
+                onClick={() => navigate("/books")}
+                className="px-8 py-4 text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-gray-600 transition"
               >
                 Cancel
               </button>

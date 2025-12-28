@@ -7,6 +7,7 @@ function UpdateProgress() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [book, setBook] = useState(null);
   const [formData, setFormData] = useState({
     current_page: 0,
     status: "Want to Read",
@@ -15,54 +16,88 @@ function UpdateProgress() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchCurrentProgress = async () => {
+    const loadData = async () => {
       try {
-        const response = await api.get(`/api/books/${id}/progress`);
-        if (response.data) {
+        const bookRes = await api.get(`/api/books/${id}`);
+        setBook(bookRes.data);
+
+        const progressRes = await api.get(`/api/books/${id}/progress`);
+        if (progressRes.data) {
           setFormData({
-            current_page: response.data.current_page,
-            status: response.data.status,
+            current_page: progressRes.data.current_page,
+            status: progressRes.data.status,
           });
         }
       } catch (err) {
-        console.log("No existing progress found, starting fresh.");
+        console.log("Starting fresh progress for this book.");
       } finally {
         setLoading(false);
       }
     };
-    fetchCurrentProgress();
+    loadData();
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    const currentPage = parseInt(formData.current_page);
+
+    if (currentPage > book.total_pages) {
+      setError(`Wait! This book only has ${book.total_pages} pages.`);
+      return;
+    }
+
+    if (formData.status === "Finished" && currentPage < book.total_pages) {
+      setError(
+        `To mark as Finished, your current page must be ${book.total_pages}.`
+      );
+      return;
+    }
+
     try {
       await api.put(`/api/books/${id}/progress`, {
-        current_page: parseInt(formData.current_page),
+        current_page: currentPage,
         status: formData.status,
       });
       alert("Progress updated!");
       navigate("/books");
     } catch (err) {
-      setError("Failed to update progress.");
+      setError(err.response?.data?.error || "Failed to update progress.");
     }
   };
 
-  if (loading) return <div className="p-10 text-center">Loading...</div>;
+  if (loading)
+    return <div className="flex justify-center p-10">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <main className="max-w-md mx-auto py-12 px-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            📉 Update Progress
-          </h2>
+        <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+          <header className="mb-8 text-center">
+            <span className="text-4xl">📊</span>
+            <h2 className="text-2xl font-black text-gray-800 mt-4 uppercase tracking-tighter">
+              Update Progress
+            </h2>
+            {book && (
+              <p className="text-gray-500 text-sm mt-1">
+                Updating:{" "}
+                <span className="font-bold text-blue-600">{book.title}</span> (
+                {book.total_pages} pages)
+              </p>
+            )}
+          </header>
 
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold border border-red-100 mb-6">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
                 Reading Status
               </label>
               <select
@@ -70,7 +105,7 @@ function UpdateProgress() {
                 onChange={(e) =>
                   setFormData({ ...formData, status: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
               >
                 <option value="Want to Read">Want to Read</option>
                 <option value="Currently Reading">Currently Reading</option>
@@ -79,8 +114,8 @@ function UpdateProgress() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Current Page Number
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                I am on Page...
               </label>
               <input
                 type="number"
@@ -88,26 +123,25 @@ function UpdateProgress() {
                 onChange={(e) =>
                   setFormData({ ...formData, current_page: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
                 min="0"
               />
             </div>
 
-            <div className="flex gap-4">
-              <button
-                type="submit"
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition"
-              >
-                Save Progress
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/books")}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
-              >
-                Cancel
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-lg transition active:scale-95 uppercase tracking-widest text-sm"
+            >
+              Update Bookmark
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/books")}
+              className="w-full text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-gray-600 transition"
+            >
+              Cancel
+            </button>
           </form>
         </div>
       </main>
