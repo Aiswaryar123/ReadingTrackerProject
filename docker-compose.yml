@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: rt_db
+    restart: always
+    network_mode: "host"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=reading_tracker
+    volumes:
+      - rt_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./Backend
+    container_name: rt_backend
+    restart: always
+    network_mode: "host"
+    environment:
+      - DB_HOST=localhost
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=reading_tracker
+      - DB_PORT=5432
+      - PORT=8080
+      - JWT_SECRET=my_super_secret_key_123
+
+  frontend:
+    build: ./frontend
+    container_name: rt_frontend
+    restart: always
+    network_mode: "host"
+
+volumes:
+  rt_data:
