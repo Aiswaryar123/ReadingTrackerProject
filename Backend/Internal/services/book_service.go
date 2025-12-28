@@ -24,7 +24,6 @@ func NewBookService(repo repository.BookRepository) BookService {
 }
 
 func (s *bookService) CreateBook(userID uint, req dto.CreateBookRequest) (*models.Book, error) {
-
 	book := &models.Book{
 		UserID:          userID,
 		Title:           req.Title,
@@ -54,9 +53,11 @@ func (s *bookService) UpdateBook(bookID uint, userID uint, req dto.UpdateBookReq
 func (s *bookService) DeleteBook(bookID uint, userID uint) error {
 	return s.repo.DeleteBook(bookID, userID)
 }
+
 func (s *bookService) GetSingleBook(bookID uint, userID uint) (*models.Book, error) {
 	return s.repo.GetBookByID(bookID, userID)
 }
+
 func (s *bookService) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
 	return s.repo.GetDashboardStats(userID)
 }

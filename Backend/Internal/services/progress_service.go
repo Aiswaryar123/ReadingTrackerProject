@@ -38,7 +38,7 @@ func (s *progressService) UpdateProgress(userID uint, bookID uint, req dto.Updat
 	}
 
 	if req.Status == "Finished" && req.CurrentPage < book.TotalPages {
-		return fmt.Errorf("cannot set to 'Finished': you have only read %d out of %d pages", req.CurrentPage, book.TotalPages)
+		return fmt.Errorf("to mark as Finished, you must be on page %d", book.TotalPages)
 	}
 
 	progress, err := s.repo.GetByBookID(bookID)

@@ -31,10 +31,10 @@ func (r *bookRepository) CreateBook(book *models.Book) error {
 
 func (r *bookRepository) GetBooksByUserID(userID uint) ([]models.Book, error) {
 	var books []models.Book
-	err := r.db.Where("user_id = ?", userID).Find(&books).Error
+
+	err := r.db.Preload("Progress").Where("user_id = ?", userID).Find(&books).Error
 	return books, err
 }
-
 func (r *bookRepository) GetBookByID(bookID uint, userID uint) (*models.Book, error) {
 	var book models.Book
 	err := r.db.Where("id = ? AND user_id = ?", bookID, userID).First(&book).Error
