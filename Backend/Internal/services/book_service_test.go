@@ -15,7 +15,7 @@ type FakeBookRepo struct {
 }
 
 func (f *FakeBookRepo) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
-	// This is the "Fake" data we will check for in our test
+
 	return dto.DashboardStats{
 		TotalBooks:    5,
 		AverageRating: 4.0,

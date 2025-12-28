@@ -28,7 +28,7 @@ func RegisterRoutes(
 		protected.PUT("/books/:id", bookHandler.UpdateBook)
 		protected.DELETE("/books/:id", bookHandler.DeleteBook)
 
-		// Reading Progress
+		// reading progress
 
 		protected.GET("/books/:id/progress", progressHandler.GetProgress)
 		protected.PUT("/books/:id/progress", progressHandler.UpdateProgress)
