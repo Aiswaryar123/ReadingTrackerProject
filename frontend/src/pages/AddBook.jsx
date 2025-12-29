@@ -28,142 +28,177 @@ function AddBook() {
     try {
       await api.post("/books", {
         ...formData,
-
         publication_year: parseInt(formData.publication_year) || 0,
         total_pages: parseInt(formData.total_pages) || 0,
       });
 
-      alert("Book added successfully!");
+      alert("Book added successfully to your library!");
       navigate("/books");
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to add book.");
+      setError(
+        err.response?.data?.error ||
+          "Failed to save book. Please check your data."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto py-12 px-4">
-        <div className="bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-100">
-          <div className="bg-blue-600 p-8 text-white">
-            <h2 className="text-3xl font-black uppercase tracking-tighter">
-              Add to Library
-            </h2>
-            <p className="text-blue-100 text-sm">
-              Enter the details of your new book below.
-            </p>
+      <main className="max-w-4xl mx-auto py-12 px-6 lg:px-8">
+        <header className="mb-12">
+          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
+            Expand Library
+          </h1>
+          <p className="mt-2 text-slate-500 text-lg font-medium">
+            Fill in the metadata to catalog a new title in your digital
+            bookshelf.
+          </p>
+        </header>
+
+        <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-slate-50 rounded-full opacity-50 flex items-center justify-center pt-8 pl-4">
+            <span className="text-6xl grayscale opacity-10">📖</span>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          <div className="relative z-10">
+            <div className="flex items-center space-x-3 mb-10">
+              <div className="p-3 bg-blue-50 rounded-2xl">
+                <svg
+                  className="w-6 h-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+              </div>
+              <h2 className="text-xl font-black text-slate-800 uppercase tracking-tighter">
+                Book Metadata
+              </h2>
+            </div>
+
             {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold border border-red-100">
-                {error}
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-2xl shadow-sm">
+                <p className="text-red-700 font-bold text-sm">⚠️ {error}</p>
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  Book Title *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  required
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
-                  placeholder="e.g. The Alchemist"
-                />
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 gap-8">
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                    Book Title *
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    required
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
+                    placeholder="e.g. The Great Gatsby"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  Author *
-                </label>
-                <input
-                  type="text"
-                  name="author"
-                  required
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
-                  placeholder="Paulo Coelho"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                    Author *
+                  </label>
+                  <input
+                    type="text"
+                    name="author"
+                    required
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
+                    placeholder="F. Scott Fitzgerald"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                    ISBN Code
+                  </label>
+                  <input
+                    type="text"
+                    name="isbn"
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
+                    placeholder="Optional"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  ISBN (Optional)
-                </label>
-                <input
-                  type="text"
-                  name="isbn"
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
-                  placeholder="978-0123456789"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                    Genre
+                  </label>
+                  <input
+                    type="text"
+                    name="genre"
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
+                    placeholder="Fiction"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                    Published Year
+                  </label>
+                  <input
+                    type="number"
+                    name="publication_year"
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
+                    placeholder="1925"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                    Total Pages *
+                  </label>
+                  <input
+                    type="number"
+                    name="total_pages"
+                    required
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
+                    placeholder="180"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  Genre
-                </label>
-                <input
-                  type="text"
-                  name="genre"
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
-                  placeholder="Fiction / Adventure"
-                />
-              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-slate-50">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full sm:flex-1 bg-slate-900 hover:bg-slate-700 text-white font-black text-xs uppercase tracking-widest py-5 rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Processing..." : "Add to Library"}
+                </button>
 
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  Year Published
-                </label>
-                <input
-                  type="number"
-                  name="publication_year"
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
-                  placeholder="1988"
-                />
+                <button
+                  type="button"
+                  onClick={() => navigate("/books")}
+                  className="w-full sm:w-auto px-10 py-5 text-slate-400 font-black text-xs uppercase tracking-widest hover:text-slate-600 transition duration-300"
+                >
+                  Discard
+                </button>
               </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  Total Pages *
-                </label>
-                <input
-                  type="number"
-                  name="total_pages"
-                  required
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
-                  placeholder="163"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-4 pt-4">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-lg transition active:scale-95 disabled:opacity-50 uppercase tracking-widest text-sm"
-              >
-                {isSubmitting ? "Adding..." : "Add to Shelf"}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/books")}
-                className="px-8 py-4 text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-gray-600 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </main>
     </div>
