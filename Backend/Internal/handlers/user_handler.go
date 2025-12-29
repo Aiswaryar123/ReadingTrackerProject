@@ -18,7 +18,6 @@ func NewUserHandler(service services.UserService) *UserHandler {
 
 func (h *UserHandler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -31,7 +30,6 @@ func (h *UserHandler) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	response := dto.UserResponse{
 		ID:    user.ID,
 		Name:  user.Name,
@@ -46,13 +44,11 @@ func (h *UserHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	token, err := h.service.Login(req)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
 		"token":   token,

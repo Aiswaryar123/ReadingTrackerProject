@@ -41,7 +41,6 @@ func (h *ReviewHandler) GetReviews(c *gin.Context) {
 	val, _ := c.Get("user_id")
 	userID := val.(uint)
 	bookID, _ := strconv.Atoi(c.Param("id"))
-
 	reviews, err := h.service.GetBookReviews(userID, uint(bookID))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

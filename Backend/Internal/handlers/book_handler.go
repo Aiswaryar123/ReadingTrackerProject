@@ -24,7 +24,6 @@ func getIDFromContext(c *gin.Context) uint {
 
 func (h *BookHandler) AddBook(c *gin.Context) {
 	userID := getIDFromContext(c)
-
 	var req dto.CreateBookRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -70,7 +69,6 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 func (h *BookHandler) DeleteBook(c *gin.Context) {
 	userID := getIDFromContext(c)
 	bookID, _ := strconv.Atoi(c.Param("id"))
-
 	err := h.service.DeleteBook(uint(bookID), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete book"})
@@ -81,7 +79,6 @@ func (h *BookHandler) DeleteBook(c *gin.Context) {
 func (h *BookHandler) GetBook(c *gin.Context) {
 	userID := getIDFromContext(c)
 	bookID, _ := strconv.Atoi(c.Param("id"))
-
 	book, err := h.service.GetSingleBook(uint(bookID), userID)
 	if err != nil {
 
@@ -96,7 +93,6 @@ func (h *BookHandler) GetDashboard(c *gin.Context) {
 
 	val, _ := c.Get("user_id")
 	userID := val.(uint)
-
 	stats, err := h.service.GetDashboardStats(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate dashboard stats"})

@@ -20,7 +20,6 @@ func NewGoalRepository(db *gorm.DB) GoalRepository {
 }
 
 func (r *goalRepository) SaveGoal(goal *models.ReadingGoal) error {
-
 	return r.db.Save(goal).Error
 }
 

@@ -8,7 +8,6 @@ import (
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/routes"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/services"
 	"github.com/Aiswaryar123/ReadingTrackerProject/configs"
-
 	"github.com/gin-gonic/gin"
 )
 

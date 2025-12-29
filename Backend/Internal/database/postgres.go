@@ -6,7 +6,6 @@ import (
 
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
 	"github.com/Aiswaryar123/ReadingTrackerProject/configs"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -30,10 +29,8 @@ func ConnectDB(cfg *configs.Config) {
 		&models.Review{},
 		&models.ReadingGoal{},
 	)
-
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
 	}
-
 	log.Println("Database connection successful and 5 Tables created!")
 }

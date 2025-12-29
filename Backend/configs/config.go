@@ -16,9 +16,7 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-
 	godotenv.Load()
-
 	return &Config{
 		DBHost:     getEnv("DB_HOST", "localhost"),
 		DBUser:     getEnv("DB_USER", "postgres"),
@@ -31,7 +29,6 @@ func LoadConfig() *Config {
 
 func getEnv(key, defaultValue string) string {
 	value := os.Getenv(key)
-
 	if value == "" {
 		return defaultValue
 	}

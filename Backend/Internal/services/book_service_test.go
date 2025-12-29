@@ -61,7 +61,6 @@ func TestCreateBook_Success(t *testing.T) {
 		Title:  "TDD Book",
 		Author: "Go Expert",
 	}
-
 	book, err := service.CreateBook(1, req)
 
 	if err != nil {
@@ -77,7 +76,6 @@ func TestCreateBook_Failure(t *testing.T) {
 	service := NewBookService(repo)
 
 	_, err := service.CreateBook(1, dto.CreateBookRequest{})
-
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	}
@@ -90,7 +88,6 @@ func TestFetchBooks_Success(t *testing.T) {
 		Books: []models.Book{{Title: "Book 1"}, {Title: "Book 2"}},
 	}
 	service := NewBookService(repo)
-
 	books, err := service.FetchBooks(1)
 
 	if err != nil {
@@ -106,7 +103,6 @@ func TestFetchBooks_Failure(t *testing.T) {
 	service := NewBookService(repo)
 
 	_, err := service.FetchBooks(1)
-
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	}
@@ -119,7 +115,6 @@ func TestGetSingleBook_Success(t *testing.T) {
 	service := NewBookService(repo)
 
 	book, err := service.GetSingleBook(1, 1)
-
 	if err != nil {
 		t.Fatalf("Expected success, got error")
 	}
@@ -133,7 +128,6 @@ func TestGetSingleBook_Failure(t *testing.T) {
 	service := NewBookService(repo)
 
 	_, err := service.GetSingleBook(1, 1)
-
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	}
@@ -151,7 +145,6 @@ func TestUpdateBook_Success(t *testing.T) {
 	}
 
 	err := service.UpdateBook(1, 1, req)
-
 	if err != nil {
 		t.Errorf("Expected success, got error: %v", err)
 	}
@@ -162,7 +155,6 @@ func TestUpdateBook_Failure(t *testing.T) {
 	service := NewBookService(repo)
 
 	err := service.UpdateBook(1, 1, dto.UpdateBookRequest{})
-
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	}
@@ -175,7 +167,6 @@ func TestDeleteBook_Success(t *testing.T) {
 	service := NewBookService(repo)
 
 	err := service.DeleteBook(1, 1)
-
 	if err != nil {
 		t.Errorf("Expected success, got error: %v", err)
 	}
@@ -186,7 +177,6 @@ func TestDeleteBook_Failure(t *testing.T) {
 	service := NewBookService(repo)
 
 	err := service.DeleteBook(1, 1)
-
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	}
@@ -197,7 +187,6 @@ func TestGetDashboardStats_Success(t *testing.T) {
 	service := NewBookService(repo)
 
 	stats, err := service.GetDashboardStats(1)
-
 	if err != nil {
 		t.Errorf("Expected no error, but got %v", err)
 	}

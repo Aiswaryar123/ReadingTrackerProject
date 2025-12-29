@@ -21,7 +21,6 @@ func (h *ProgressHandler) GetProgress(c *gin.Context) {
 	val, _ := c.Get("user_id")
 	userID := val.(uint)
 	bookID, _ := strconv.Atoi(c.Param("id"))
-
 	progress, err := h.service.GetProgress(userID, uint(bookID))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

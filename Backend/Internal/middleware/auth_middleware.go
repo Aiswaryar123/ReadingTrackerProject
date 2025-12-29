@@ -28,7 +28,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := parts[1]
-
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 
 			secret := os.Getenv("JWT_SECRET")
@@ -40,14 +39,12 @@ func AuthMiddleware() gin.HandlerFunc {
 			fmt.Printf("Message: %v\n", err)
 			fmt.Printf("Secret Key used by Middleware: '%s'\n", os.Getenv("JWT_SECRET"))
 			fmt.Println("-----------------------")
-
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
 			return
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-
 			userID := uint(claims["user_id"].(float64))
 
 			c.Set("user_id", userID)

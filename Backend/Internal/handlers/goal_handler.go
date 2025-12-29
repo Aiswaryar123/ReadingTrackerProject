@@ -20,13 +20,11 @@ func NewGoalHandler(service services.GoalService) *GoalHandler {
 func (h *GoalHandler) SetGoal(c *gin.Context) {
 	val, _ := c.Get("user_id")
 	userID := val.(uint)
-
 	var req dto.SetGoalRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	if err := h.service.SetUserGoal(userID, req); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to set goal"})
 		return
@@ -38,7 +36,6 @@ func (h *GoalHandler) GetGoalStatus(c *gin.Context) {
 	val, _ := c.Get("user_id")
 	userID := val.(uint)
 	year, _ := strconv.Atoi(c.Param("year"))
-
 	status, err := h.service.GetProgress(userID, year)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No goal found for this year"})
