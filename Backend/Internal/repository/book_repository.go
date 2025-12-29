@@ -51,7 +51,6 @@ func (r *bookRepository) DeleteBook(id uint, userID uint) error {
 
 func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
 	var stats dto.DashboardStats
-
 	currentYear := time.Now().Year()
 
 	r.db.Model(&models.Book{}).Where("user_id = ?", userID).Count(&stats.TotalBooks)
@@ -65,11 +64,6 @@ func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, err
 		Joins("JOIN books ON books.id = reading_progresses.book_id").
 		Where("books.user_id = ? AND reading_progresses.status = ?", userID, "Currently Reading").
 		Count(&stats.CurrentlyReading)
-
-	r.db.Table("reviews").
-		Joins("JOIN books ON books.id = reviews.book_id").
-		Where("books.user_id = ?", userID).
-		Select("COALESCE(AVG(rating), 0)").Scan(&stats.AverageRating)
 
 	var goal models.ReadingGoal
 	r.db.Where("user_id = ? AND year = ?", userID, currentYear).First(&goal)

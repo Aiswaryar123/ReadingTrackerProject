@@ -8,6 +8,7 @@ import (
 type ReviewRepository interface {
 	CreateReview(review *models.Review) error
 	GetReviewsByBookID(bookID uint) ([]models.Review, error)
+	GetReviewByBookID(bookID uint) (*models.Review, error)
 }
 
 type reviewRepository struct {
@@ -26,4 +27,12 @@ func (r *reviewRepository) GetReviewsByBookID(bookID uint) ([]models.Review, err
 	var reviews []models.Review
 	err := r.db.Where("book_id = ?", bookID).Find(&reviews).Error
 	return reviews, err
+}
+func (r *reviewRepository) GetReviewByBookID(bookID uint) (*models.Review, error) {
+	var review models.Review
+	err := r.db.Where("book_id = ?", bookID).First(&review).Error
+	if err != nil {
+		return nil, err
+	}
+	return &review, nil
 }

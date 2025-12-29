@@ -14,14 +14,13 @@ func RegisterRoutes(
 	reviewHandler *handlers.ReviewHandler,
 	goalHandler *handlers.GoalHandler,
 ) {
-	// Group EVERYTHING under /api
+
 	api := r.Group("/api")
 	{
-		// 1. PUBLIC API ROUTES (Now they start with /api/register and /api/login)
+
 		api.POST("/register", userHandler.Register)
 		api.POST("/login", userHandler.Login)
 
-		// 2. PROTECTED API ROUTES
 		protected := api.Group("/")
 		protected.Use(middleware.AuthMiddleware())
 		{

@@ -17,8 +17,7 @@ type FakeBookRepo struct {
 func (f *FakeBookRepo) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
 
 	return dto.DashboardStats{
-		TotalBooks:    5,
-		AverageRating: 4.0,
+		TotalBooks: 5,
 	}, nil
 }
 func (f *FakeBookRepo) CreateBook(b *models.Book) error {
@@ -195,7 +194,4 @@ func TestGetDashboardStats_Success(t *testing.T) {
 		t.Errorf("Expected 5 books (from FakeRepo), but got %d", stats.TotalBooks)
 	}
 
-	if stats.AverageRating != 4.0 {
-		t.Errorf("Expected rating 4.0, but got %f", stats.AverageRating)
-	}
 }

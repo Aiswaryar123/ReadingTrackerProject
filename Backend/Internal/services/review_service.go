@@ -29,7 +29,12 @@ func (s *reviewService) AddReview(userID uint, bookID uint, req dto.CreateReview
 
 	_, err := s.bookRepo.GetBookByID(bookID, userID)
 	if err != nil {
-		return errors.New("cannot review: book not found or access denied")
+		return errors.New("access denied")
+	}
+
+	existing, _ := s.repo.GetReviewByBookID(bookID)
+	if existing != nil {
+		return errors.New("you have already reviewed this book")
 	}
 
 	review := &models.Review{
