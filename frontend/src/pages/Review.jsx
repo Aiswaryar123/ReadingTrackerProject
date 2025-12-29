@@ -18,7 +18,7 @@ function Review() {
 
   const fetchReviews = async () => {
     try {
-      const response = await api.get(`/api/books/${id}/reviews`);
+      const response = await api.get(`/books/${id}/reviews`);
       setReviews(response.data.data || []);
     } catch (err) {
       console.error("Failed to fetch reviews");
@@ -30,7 +30,7 @@ function Review() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post(`/api/books/${id}/reviews`, {
+      await api.post(`/books/${id}/reviews`, {
         rating: parseInt(formData.rating),
         comment: formData.comment,
       });

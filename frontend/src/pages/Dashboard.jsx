@@ -11,7 +11,8 @@ function Dashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await api.get("/api/dashboard");
+        const response = await api.get("/dashboard");
+
         setStats(response.data);
       } catch (err) {
         setError(

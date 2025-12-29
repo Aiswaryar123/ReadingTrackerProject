@@ -26,7 +26,7 @@ function AddBook() {
     setIsSubmitting(true);
 
     try {
-      await api.post("/api/books", {
+      await api.post("/books", {
         ...formData,
 
         publication_year: parseInt(formData.publication_year) || 0,

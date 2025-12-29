@@ -7,6 +7,7 @@ import (
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/dto"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/repository"
+	"gorm.io/gorm"
 )
 
 type ProgressService interface {
@@ -27,7 +28,6 @@ func NewProgressService(repo repository.ProgressRepository, bookRepo repository.
 }
 
 func (s *progressService) UpdateProgress(userID uint, bookID uint, req dto.UpdateProgressRequest) error {
-
 	book, err := s.bookRepo.GetBookByID(bookID, userID)
 	if err != nil {
 		return errors.New("access denied: you do not own this book")
@@ -38,7 +38,7 @@ func (s *progressService) UpdateProgress(userID uint, bookID uint, req dto.Updat
 	}
 
 	if req.Status == "Finished" && req.CurrentPage < book.TotalPages {
-		return fmt.Errorf("to mark as Finished, you must be on page %d", book.TotalPages)
+		return fmt.Errorf("to mark as Finished, you must reach page %d", book.TotalPages)
 	}
 
 	progress, err := s.repo.GetByBookID(bookID)
@@ -53,9 +53,24 @@ func (s *progressService) UpdateProgress(userID uint, bookID uint, req dto.Updat
 }
 
 func (s *progressService) GetProgress(userID uint, bookID uint) (*models.ReadingProgress, error) {
+
 	_, err := s.bookRepo.GetBookByID(bookID, userID)
 	if err != nil {
 		return nil, errors.New("access denied")
 	}
-	return s.repo.GetByBookID(bookID)
+
+	progress, err := s.repo.GetByBookID(bookID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) || err.Error() == "record not found" {
+			return &models.ReadingProgress{
+				BookID:      bookID,
+				Status:      "Want to Read",
+				CurrentPage: 0,
+			}, nil
+		}
+		return nil, err
+	}
+
+	return progress, nil
 }

@@ -14,30 +14,29 @@ func RegisterRoutes(
 	reviewHandler *handlers.ReviewHandler,
 	goalHandler *handlers.GoalHandler,
 ) {
-
-	r.POST("/register", userHandler.Register)
-	r.POST("/login", userHandler.Login)
-
-	protected := r.Group("/api")
-	protected.Use(middleware.AuthMiddleware())
+	// Group EVERYTHING under /api
+	api := r.Group("/api")
 	{
-		// book CRUD
-		protected.POST("/books", bookHandler.AddBook)
-		protected.GET("/books", bookHandler.ListBooks)
-		protected.GET("/books/:id", bookHandler.GetBook)
-		protected.PUT("/books/:id", bookHandler.UpdateBook)
-		protected.DELETE("/books/:id", bookHandler.DeleteBook)
+		// 1. PUBLIC API ROUTES (Now they start with /api/register and /api/login)
+		api.POST("/register", userHandler.Register)
+		api.POST("/login", userHandler.Login)
 
-		// reading progress
-
-		protected.GET("/books/:id/progress", progressHandler.GetProgress)
-		protected.PUT("/books/:id/progress", progressHandler.UpdateProgress)
-		//review
-		protected.POST("/books/:id/reviews", reviewHandler.AddReview)
-		protected.GET("/books/:id/reviews", reviewHandler.GetReviews)
-		protected.POST("/goals", goalHandler.SetGoal)
-		protected.GET("/goals/:year", goalHandler.GetGoalStatus)
-		protected.GET("/dashboard", bookHandler.GetDashboard)
-
+		// 2. PROTECTED API ROUTES
+		protected := api.Group("/")
+		protected.Use(middleware.AuthMiddleware())
+		{
+			protected.POST("/books", bookHandler.AddBook)
+			protected.GET("/books", bookHandler.ListBooks)
+			protected.GET("/books/:id", bookHandler.GetBook)
+			protected.PUT("/books/:id", bookHandler.UpdateBook)
+			protected.DELETE("/books/:id", bookHandler.DeleteBook)
+			protected.GET("/books/:id/progress", progressHandler.GetProgress)
+			protected.PUT("/books/:id/progress", progressHandler.UpdateProgress)
+			protected.POST("/books/:id/reviews", reviewHandler.AddReview)
+			protected.GET("/books/:id/reviews", reviewHandler.GetReviews)
+			protected.POST("/goals", goalHandler.SetGoal)
+			protected.GET("/goals/:year", goalHandler.GetGoalStatus)
+			protected.GET("/dashboard", bookHandler.GetDashboard)
+		}
 	}
 }

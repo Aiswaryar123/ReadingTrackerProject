@@ -26,7 +26,7 @@ function ReadingGoals() {
 
   const fetchGoalProgress = async () => {
     try {
-      const response = await api.get(`/api/goals/${year}`);
+      const response = await api.get(`/goals/${year}`);
       setProgress(response.data);
       setTarget(response.data.target);
       setError("");
@@ -41,7 +41,7 @@ function ReadingGoals() {
     setMessage("");
     setError("");
     try {
-      await api.post("/api/goals", {
+      await api.post("/goals", {
         year: parseInt(year),
         target_books: parseInt(target),
       });

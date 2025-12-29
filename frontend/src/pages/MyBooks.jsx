@@ -15,7 +15,7 @@ function MyBooks() {
 
   const fetchBooks = async () => {
     try {
-      const response = await api.get("/api/books");
+      const response = await api.get("/books");
       setBooks(response.data.data || []);
       setLoading(false);
     } catch (err) {
@@ -27,7 +27,7 @@ function MyBooks() {
   const handleDelete = async (id) => {
     if (window.confirm("Delete this book?")) {
       try {
-        await api.delete(`/api/books/${id}`);
+        await api.delete(`/books/${id}`);
         setBooks(books.filter((book) => book.id !== id));
       } catch (err) {
         alert("Failed to delete.");
