@@ -40,18 +40,23 @@ function ReadingGoals() {
     e.preventDefault();
     setMessage("");
     setError("");
+
     try {
       await api.post("/goals", {
         year: parseInt(year),
         target_books: parseInt(target),
       });
-      setMessage("Goal successfully updated!");
+
+      setMessage("Goal successfully set!");
       fetchGoalProgress();
     } catch (err) {
-      setError("Unable to save goal. Please check your connection.");
+      if (err.response?.data?.error === "target already set for this year") {
+        setError("Target already set, cannot change.");
+      } else {
+        setError("Goal Already set");
+      }
     }
   };
-
   const calculatePercentage = () => {
     if (!progress || progress.target === 0) return 0;
     return Math.min((progress.current / progress.target) * 100, 100);

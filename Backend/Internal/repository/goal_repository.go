@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
 	"gorm.io/gorm"
 )
@@ -20,7 +22,16 @@ func NewGoalRepository(db *gorm.DB) GoalRepository {
 }
 
 func (r *goalRepository) SaveGoal(goal *models.ReadingGoal) error {
-	return r.db.Save(goal).Error
+	var existing models.ReadingGoal
+
+	err := r.db.Where("user_id = ? AND year = ?", goal.UserID, goal.Year).First(&existing).Error
+
+	if err == nil {
+
+		return errors.New("target already set for this year")
+	}
+
+	return r.db.Create(goal).Error
 }
 
 func (r *goalRepository) GetGoal(userID uint, year int) (*models.ReadingGoal, error) {

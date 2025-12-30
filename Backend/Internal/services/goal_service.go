@@ -25,6 +25,7 @@ func (s *goalService) SetUserGoal(userID uint, req dto.SetGoalRequest) error {
 		Year:        req.Year,
 		TargetBooks: req.TargetBooks,
 	}
+
 	return s.repo.SaveGoal(goal)
 }
 
