@@ -102,7 +102,7 @@ function MyBooks() {
           </div>
           <button
             onClick={() => navigate("/add-book")}
-            className="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl transition-all active:scale-95"
+            className="bg-slate-900  text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl transition-all active:scale-95"
           >
             + Add New Book
           </button>

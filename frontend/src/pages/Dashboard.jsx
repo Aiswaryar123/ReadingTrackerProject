@@ -163,7 +163,7 @@ function Dashboard() {
                   </div>
                   <button
                     onClick={() => navigate("/goals")}
-                    className="bg-slate-900 text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-2xl hover:bg-blue-600 transition-all shadow-lg active:scale-95"
+                    className="bg-slate-900 text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-2xl transition-all shadow-lg active:scale-95"
                   >
                     {stats.goal_target > 0
                       ? "Edit Challenge"
