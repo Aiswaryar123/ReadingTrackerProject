@@ -55,7 +55,7 @@ function AddBook() {
           </h1>
           <p className="mt-2 text-slate-500 text-lg font-medium">
             Fill in the metadata to catalog a new title in your digital
-            bookshelf.
+            bookshelf
           </p>
         </header>
 
@@ -180,11 +180,11 @@ function AddBook() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-slate-50">
+              <div className="flex flex-col sm:flex-row items-center gap-25 pt-6 border-t border-slate-50">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:flex-1 bg-slate-900  text-white font-black text-xs uppercase tracking-widest py-5 rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-28 sm:flex-1 bg-slate-900  text-white font-black text-xs uppercase tracking-widest py-5 rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Processing..." : "Add to Library"}
                 </button>

@@ -12,6 +12,7 @@ import MyBooks from "./pages/MyBooks";
 import UpdateProgress from "./pages/UpdateProgress";
 import Review from "./pages/Review";
 import ReadingGoals from "./pages/ReadingGoals";
+import EditBook from "./pages/EditBook";
 
 function App() {
   return (
@@ -24,7 +25,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/add-book" element={<AddBook />} />
         <Route path="/books" element={<MyBooks />} />
-
+        <Route path="/books/:id/edit" element={<EditBook />} />
         <Route path="/goals" element={<ReadingGoals />} />
 
         <Route path="/books/:id/review" element={<Review />} />

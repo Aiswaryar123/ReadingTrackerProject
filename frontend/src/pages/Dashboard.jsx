@@ -39,7 +39,7 @@ function Dashboard() {
           </h1>
           <p className="mt-2 text-slate-500 text-lg">
             Track your progress, manage your goals, and celebrate your reading
-            milestones.
+            milestones
           </p>
         </header>
 

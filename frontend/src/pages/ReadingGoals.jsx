@@ -72,7 +72,7 @@ function ReadingGoals() {
           </h1>
           <p className="mt-2 text-slate-500 text-lg">
             Challenge yourself by setting yearly targets and track your
-            achievement.
+            achievement
           </p>
         </header>
 
