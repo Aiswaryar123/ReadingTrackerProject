@@ -44,6 +44,9 @@ func (f *FakeBookRepoForProgress) GetBookByID(id uint, uid uint) (*models.Book, 
 		TotalPages: 300,
 	}, nil
 }
+func (f *FakeBookRepoForProgress) SearchBooks(userID uint, query string) ([]models.Book, error) {
+	return []models.Book{}, nil
+}
 
 func (f *FakeBookRepoForProgress) CreateBook(b *models.Book) error                  { return nil }
 func (f *FakeBookRepoForProgress) GetBooksByUserID(uid uint) ([]models.Book, error) { return nil, nil }

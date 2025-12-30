@@ -27,7 +27,10 @@ func (f *FakeBookRepo) CreateBook(b *models.Book) error {
 	f.Books = append(f.Books, *b)
 	return nil
 }
-
+func (f *FakeBookRepo) SearchBooks(userID uint, query string) ([]models.Book, error) {
+	// Return empty list and no error just to satisfy the interface
+	return []models.Book{}, nil
+}
 func (f *FakeBookRepo) GetBooksByUserID(uid uint) ([]models.Book, error) {
 	if f.Err != nil {
 		return nil, f.Err
@@ -194,4 +197,15 @@ func TestGetDashboardStats_Success(t *testing.T) {
 		t.Errorf("Expected 5 books (from FakeRepo), but got %d", stats.TotalBooks)
 	}
 
+}
+func TestSearchMyBooks_Success(t *testing.T) {
+
+	repo := &FakeBookRepo{}
+	service := NewBookService(repo)
+
+	_, err := service.SearchMyBooks(1, "Basheer")
+
+	if err != nil {
+		t.Errorf("Expected search to work, but got error: %v", err)
+	}
 }

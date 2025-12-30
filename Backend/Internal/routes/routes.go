@@ -36,6 +36,7 @@ func RegisterRoutes(
 			protected.POST("/goals", goalHandler.SetGoal)
 			protected.GET("/goals/:year", goalHandler.GetGoalStatus)
 			protected.GET("/dashboard", bookHandler.GetDashboard)
+			protected.GET("/books/search", bookHandler.SearchBooks)
 		}
 	}
 }

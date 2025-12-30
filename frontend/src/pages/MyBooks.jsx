@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 
 function MyBooks() {
   const [books, setBooks] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -24,12 +25,24 @@ function MyBooks() {
     }
   };
 
+  const handleSearch = async (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    try {
+      if (value.trim() === "") {
+        fetchBooks();
+        return;
+      }
+      const response = await api.get(`/books/search?q=${value}`);
+      setBooks(response.data.data || []);
+    } catch (err) {
+      console.error("Search failed", err);
+    }
+  };
+
   const handleDelete = async (id) => {
-    if (
-      window.confirm(
-        "Are you sure you want to remove this book? This action cannot be undone."
-      )
-    ) {
+    if (window.confirm("Are you sure you want to remove this book?")) {
       try {
         await api.delete(`/books/${id}`);
         setBooks(books.filter((book) => book.id !== id));
@@ -39,41 +52,38 @@ function MyBooks() {
     }
   };
 
-  const renderProgressSection = (book) => {
-    const status = book.progress?.status || "Want to Read";
-    const currentPage = book.progress?.current_page || 0;
-    const totalPages = book.total_pages;
+  const StatusBadge = ({ progress, totalPages }) => {
+    const status = progress?.status || "Want to Read";
+    const currentPage = progress?.current_page || 0;
     const percentage = Math.round((currentPage / totalPages) * 100) || 0;
+
+    const styles = {
+      Finished: "bg-emerald-50 text-emerald-600 border-emerald-100",
+      Reading: "bg-indigo-50 text-indigo-600 border-indigo-100",
+      "Currently Reading": "bg-indigo-50 text-indigo-600 border-indigo-100",
+      Default: "bg-slate-50 text-slate-400 border-slate-100",
+    };
+
+    const currentStyle = styles[status] || styles.Default;
 
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          {status === "Finished" ? (
-            <span className="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg">
-              Completed
-            </span>
-          ) : status === "Currently Reading" || status === "Reading" ? (
-            <span className="bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg">
-              Reading Now
-            </span>
-          ) : (
-            <span className="bg-slate-50 text-slate-400 border border-slate-100 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg">
-              On Deck
-            </span>
-          )}
-        </div>
-
+        <span
+          className={`${currentStyle} border text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-lg inline-block`}
+        >
+          {status}
+        </span>
         <div className="space-y-2">
-          <div className="flex justify-between items-end">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              Progress: {currentPage} / {totalPages} Pgs
-            </p>
-            <p className="text-xs font-black text-slate-800">{percentage}%</p>
+          <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-widest text-slate-400">
+            <span>
+              Page {currentPage} / {totalPages}
+            </span>
+            <span className="text-slate-800">{percentage}%</span>
           </div>
-          <div className="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
             <div
               style={{ width: `${percentage}%` }}
-              className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full transition-all duration-700 ease-out shadow-sm"
+              className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full transition-all duration-700"
             ></div>
           </div>
         </div>
@@ -86,27 +96,51 @@ function MyBooks() {
       <Navbar />
 
       <main className="max-w-6xl mx-auto py-12 px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
           <div>
-            <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+            <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase">
               My Library
             </h1>
-            <p className="text-slate-500 mt-4 text-lg font-medium">
-              Manage your curated collection of Books
+            <p className="text-slate-500 mt-2 font-medium">
+              Manage your collection of {books.length} titles.
             </p>
           </div>
           <button
             onClick={() => navigate("/add-book")}
-            className="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-widest px-10 py-5 rounded-[1.5rem] shadow-2xl transition-all active:scale-95"
+            className="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-widest px-10 py-5 rounded-[1.5rem] shadow-xl transition-all active:scale-95"
           >
             + Add New Title
           </button>
         </div>
 
+        <div className="mb-12 relative group">
+          <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+            <svg
+              className="h-5 w-5 text-slate-300 group-focus-within:text-blue-500 transition-colors"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="3"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Lookup by book name..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="block w-full pl-16 pr-6 py-5 bg-white border border-slate-100 rounded-[2rem] shadow-sm focus:ring-4 focus:ring-blue-50 focus:border-blue-200 outline-none transition-all font-bold text-slate-600 placeholder-slate-300"
+          />
+        </div>
+
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-10 rounded-r-2xl">
-            <p className="text-red-700 font-bold">⚠️ {error}</p>
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-10 rounded-r-2xl shadow-sm text-red-700 font-bold">
+            ⚠️ {error}
           </div>
         )}
 
@@ -119,26 +153,31 @@ function MyBooks() {
           </div>
         ) : books.length === 0 ? (
           <div className="bg-white rounded-[3rem] p-24 text-center border border-slate-100 shadow-sm border-dashed">
-            <div className="text-7xl mb-6 opacity-10 grayscale">📚</div>
+            <div className="text-7xl mb-6 opacity-10 grayscale">🔍</div>
             <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">
-              Your Library is Quiet
+              No Titles Found
             </h2>
-            <p className="text-slate-400 mt-2 mb-10 font-medium italic text-lg text-sans">
-              No books found in your collection.
+            <p className="text-slate-400 mt-2 mb-10 font-medium italic text-lg">
+              {searchQuery
+                ? `No matches for "${searchQuery}"`
+                : "Your library is currently empty."}
             </p>
             <button
-              onClick={() => navigate("/add-book")}
+              onClick={() => {
+                setSearchQuery("");
+                fetchBooks();
+              }}
               className="bg-blue-50 text-blue-600 font-black text-xs uppercase tracking-widest px-8 py-4 rounded-2xl hover:bg-blue-100 transition-all"
             >
-              Start Your Catalog Today
+              Show All Books
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {books.map((book) => (
               <div
                 key={book.id}
-                className="bg-white p-12 rounded-[3rem] shadow-sm border border-slate-100 flex flex-col hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden"
+                className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 flex flex-col hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 -mr-12 -mt-12 w-40 h-40 bg-slate-50 rounded-full opacity-50 group-hover:bg-blue-50 transition-colors"></div>
 
@@ -160,7 +199,12 @@ function MyBooks() {
                   </p>
                 </div>
 
-                <div className="flex-grow">{renderProgressSection(book)}</div>
+                <div className="flex-grow">
+                  <StatusBadge
+                    progress={book.progress}
+                    totalPages={book.total_pages}
+                  />
+                </div>
 
                 <div className="mt-12 flex items-center gap-4 relative z-10">
                   <button
@@ -169,27 +213,21 @@ function MyBooks() {
                   >
                     Track Progress
                   </button>
-
                   <button
                     onClick={() => navigate(`/books/${book.id}/review`)}
                     className="flex-[2] bg-amber-50 hover:bg-amber-100 text-amber-600 text-[10px] font-black uppercase tracking-widest py-5 rounded-2xl transition active:scale-95 flex justify-center"
-                    title="Write Review"
                   >
                     ⭐
                   </button>
-
                   <button
                     onClick={() => navigate(`/books/${book.id}/edit`)}
                     className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 py-5 rounded-2xl transition active:scale-95 flex justify-center"
-                    title="Edit Details"
                   >
                     ✏️
                   </button>
-
                   <button
                     onClick={() => handleDelete(book.id)}
-                    className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-400 hover:text-rose-600 py-5 rounded-2xl transition active:scale-95 flex justify-center"
-                    title="Delete Title"
+                    className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-500 py-5 rounded-2xl transition active:scale-95 flex justify-center"
                   >
                     🗑️
                   </button>

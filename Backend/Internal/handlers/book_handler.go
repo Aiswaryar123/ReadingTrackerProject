@@ -101,3 +101,22 @@ func (h *BookHandler) GetDashboard(c *gin.Context) {
 
 	c.JSON(http.StatusOK, stats)
 }
+func (h *BookHandler) SearchBooks(c *gin.Context) {
+	userID := getIDFromContext(c)
+
+	query := c.Query("q")
+
+	if query == "" {
+		books, _ := h.service.FetchBooks(userID)
+		c.JSON(200, gin.H{"data": books})
+		return
+	}
+
+	books, err := h.service.SearchMyBooks(userID, query)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Search failed"})
+		return
+	}
+
+	c.JSON(200, gin.H{"data": books})
+}

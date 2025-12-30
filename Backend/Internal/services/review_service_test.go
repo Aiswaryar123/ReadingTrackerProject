@@ -41,7 +41,9 @@ func (f *FakeReviewRepo) CreateReview(r *models.Review) error {
 func (f *FakeReviewRepo) GetReviewsByBookID(bookID uint) ([]models.Review, error) {
 	return f.Reviews, nil
 }
-
+func (f *FakeBookRepoForReview) SearchBooks(userID uint, query string) ([]models.Book, error) {
+	return []models.Book{}, nil
+}
 func (f *FakeReviewRepo) GetReviewByBookID(bookID uint) (*models.Review, error) {
 
 	for _, r := range f.Reviews {

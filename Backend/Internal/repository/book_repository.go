@@ -15,6 +15,7 @@ type BookRepository interface {
 	UpdateBook(bookID uint, userID uint, book *models.Book) error
 	DeleteBook(bookID uint, userID uint) error
 	GetDashboardStats(userID uint) (dto.DashboardStats, error)
+	SearchBooks(userID uint, query string) ([]models.Book, error)
 }
 
 type bookRepository struct {
@@ -57,7 +58,9 @@ func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, err
 
 	r.db.Table("reading_progresses").
 		Joins("JOIN books ON books.id = reading_progresses.book_id").
-		Where("books.user_id = ? AND reading_progresses.status = ?", userID, "Finished").
+		Where("books.user_id = ?", userID).
+		Where("reading_progresses.status = ?", "Finished").
+		Where("EXTRACT(YEAR FROM reading_progresses.last_updated) = ?", currentYear).
 		Count(&stats.BooksFinished)
 
 	r.db.Table("reading_progresses").
@@ -70,4 +73,15 @@ func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, err
 	stats.GoalTarget = goal.TargetBooks
 
 	return stats, nil
+}
+func (r *bookRepository) SearchBooks(userID uint, query string) ([]models.Book, error) {
+	var books []models.Book
+
+	searchTerm := "%" + query + "%"
+
+	err := r.db.Preload("Progress").
+		Where("user_id = ? AND title ILIKE ?", userID, searchTerm).
+		Find(&books).Error
+
+	return books, err
 }

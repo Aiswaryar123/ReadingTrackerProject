@@ -151,8 +151,7 @@ function Review() {
                   Review Recorded
                 </h3>
                 <p className="text-slate-500 font-medium mt-3 px-4 leading-relaxed">
-                  Thank you for your feedback! To maintain high data quality,
-                  each user is limited to one review per book.
+                  Thank you for your feedback!
                 </p>
                 <button
                   onClick={() => navigate("/books")}
