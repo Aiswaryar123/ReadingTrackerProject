@@ -20,9 +20,47 @@ function AddBook() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    const { title, author, total_pages, publication_year } = formData;
+    const currentYear = new Date().getFullYear(); // This will be 2026
+
+    if (title.trim().length < 2) return "Book title is too short.";
+    if (/^\d+$/.test(title)) return "Title cannot be only numbers.";
+
+    if (author.trim().length < 2) return "Author name is too short.";
+
+    const pages = parseInt(total_pages);
+    if (isNaN(pages) || pages <= 0)
+      return "Total pages must be greater than 0.";
+
+    if (publication_year) {
+      const year = parseInt(publication_year);
+      // Logic: Between year 1000 and 2026
+      if (year < 1000 || year > currentYear) {
+        return `Publication year must be between 1000 and ${currentYear}.`;
+      }
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // 1. Frontend validation for 2026
+    const currentYear = 2026;
+    if (parseInt(formData.total_pages) <= 0) {
+      setError("Total pages must be greater than 0.");
+      return;
+    }
+    if (formData.publication_year) {
+      const year = parseInt(formData.publication_year);
+      if (year < 1000 || year > currentYear) {
+        setError(`Publication year must be between 1000 and ${currentYear}.`);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -32,13 +70,14 @@ function AddBook() {
         total_pages: parseInt(formData.total_pages) || 0,
       });
 
-      alert("Book added successfully to your library!");
+      alert("Book added successfully!");
       navigate("/books");
     } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          "Failed to save book. Please check your data."
-      );
+      // 2. Logic: Extract the specific "error" field from the Backend JSON
+      // If backend sends {"error": "this book already exists"}, serverMessage becomes that string.
+      const serverMessage =
+        err.response?.data?.error || "Failed to save book. Please try again.";
+      setError(serverMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -47,21 +86,21 @@ function AddBook() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
-
       <main className="max-w-4xl mx-auto py-12 px-6 lg:px-8">
         <header className="mb-12">
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
             Expand Library
           </h1>
           <p className="mt-2 text-slate-500 text-lg font-medium">
-            Fill in the metadata to catalog a new title in your digital
-            bookshelf
+            Registering a new title for the year {new Date().getFullYear()}.
           </p>
         </header>
 
         <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden">
           <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-slate-50 rounded-full opacity-50 flex items-center justify-center pt-8 pl-4">
-            <span className="text-6xl grayscale opacity-10">📖</span>
+            <span className="text-6xl grayscale opacity-10 font-bold italic">
+              2026
+            </span>
           </div>
 
           <div className="relative z-10">
@@ -87,26 +126,25 @@ function AddBook() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-2xl shadow-sm">
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-2xl shadow-sm animate-bounce">
                 <p className="text-red-700 font-bold text-sm">⚠️ {error}</p>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-1 gap-8">
-                <div>
-                  <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
-                    Book Title *
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    required
-                    onChange={handleChange}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
-                    placeholder="e.g. The Great Gatsby"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                  Book Title *
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  value={formData.title}
+                  onChange={handleChange}
+                  className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
+                  placeholder="e.g. Mathilukal"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -118,12 +156,12 @@ function AddBook() {
                     type="text"
                     name="author"
                     required
+                    value={formData.author}
                     onChange={handleChange}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
-                    placeholder="F. Scott Fitzgerald"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
+                    placeholder="Basheer"
                   />
                 </div>
-
                 <div>
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
                     ISBN Code
@@ -131,9 +169,10 @@ function AddBook() {
                   <input
                     type="text"
                     name="isbn"
+                    value={formData.isbn}
                     onChange={handleChange}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
-                    placeholder="Optional"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
+                    placeholder="Unique ID"
                   />
                 </div>
               </div>
@@ -146,25 +185,25 @@ function AddBook() {
                   <input
                     type="text"
                     name="genre"
+                    value={formData.genre}
                     onChange={handleChange}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
-                    placeholder="Fiction"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
+                    placeholder="Classic"
                   />
                 </div>
-
                 <div>
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
-                    Published Year
+                    Year (1000-2026)
                   </label>
                   <input
                     type="number"
                     name="publication_year"
+                    value={formData.publication_year}
                     onChange={handleChange}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
-                    placeholder="1925"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
+                    placeholder="2026"
                   />
                 </div>
-
                 <div>
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
                     Total Pages *
@@ -173,26 +212,26 @@ function AddBook() {
                     type="number"
                     name="total_pages"
                     required
+                    value={formData.total_pages}
                     onChange={handleChange}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700 placeholder-slate-300"
-                    placeholder="180"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
+                    placeholder="300"
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-25 pt-6 border-t border-slate-50">
+              <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-slate-50">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-28 sm:flex-1 bg-slate-900  text-white font-black text-xs uppercase tracking-widest py-5 rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-slate-900 text-white font-black text-xs uppercase tracking-widest py-5 rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50"
                 >
-                  {isSubmitting ? "Processing..." : "Add to Library"}
+                  {isSubmitting ? "Checking Database..." : "Add to Library"}
                 </button>
-
                 <button
                   type="button"
                   onClick={() => navigate("/books")}
-                  className="w-full sm:w-auto px-10 py-5 text-slate-400 font-black text-xs uppercase tracking-widest hover:text-slate-600 transition duration-300"
+                  className="px-10 py-5 text-slate-400 font-black text-xs uppercase tracking-widest hover:text-slate-600 transition"
                 >
                   Discard
                 </button>

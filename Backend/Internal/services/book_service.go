@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/dto"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/models"
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/repository"
@@ -23,8 +25,18 @@ type bookService struct {
 func NewBookService(repo repository.BookRepository) BookService {
 	return &bookService{repo: repo}
 }
-
 func (s *bookService) CreateBook(userID uint, req dto.CreateBookRequest) (*models.Book, error) {
+
+	existing, _ := s.repo.FindDuplicate(userID, req.Title, req.Author, req.ISBN)
+	if existing != nil {
+
+		if req.ISBN != "" && existing.ISBN == req.ISBN {
+			return nil, errors.New("a book with this ISBN is already in your library")
+		}
+
+		return nil, errors.New("this book title and author already exists in your library")
+	}
+
 	book := &models.Book{
 		UserID:          userID,
 		Title:           req.Title,
@@ -38,7 +50,6 @@ func (s *bookService) CreateBook(userID uint, req dto.CreateBookRequest) (*model
 	err := s.repo.CreateBook(book)
 	return book, err
 }
-
 func (s *bookService) FetchBooks(userID uint) ([]models.Book, error) {
 	return s.repo.GetBooksByUserID(userID)
 }

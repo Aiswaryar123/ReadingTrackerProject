@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/Aiswaryar123/ReadingTrackerProject/Internal/dto"
@@ -13,9 +15,10 @@ type BookRepository interface {
 	GetBooksByUserID(userID uint) ([]models.Book, error)
 	GetBookByID(bookID uint, userID uint) (*models.Book, error)
 	UpdateBook(bookID uint, userID uint, book *models.Book) error
-	DeleteBook(bookID uint, userID uint) error
+	DeleteBook(id uint, userID uint) error
 	GetDashboardStats(userID uint) (dto.DashboardStats, error)
 	SearchBooks(userID uint, query string) ([]models.Book, error)
+	FindDuplicate(userID uint, title string, author string, isbn string) (*models.Book, error)
 }
 
 type bookRepository struct {
@@ -27,18 +30,39 @@ func NewBookRepository(db *gorm.DB) BookRepository {
 }
 
 func (r *bookRepository) CreateBook(book *models.Book) error {
-	return r.db.Create(book).Error
+	err := r.db.Create(book).Error
+	if err != nil {
+
+		if strings.Contains(err.Error(), "23505") || strings.Contains(err.Error(), "unique") {
+			return errors.New("this book is already in your library")
+		}
+		return err
+	}
+	return nil
+}
+func (r *bookRepository) FindDuplicate(userID uint, title string, author string, isbn string) (*models.Book, error) {
+	var book models.Book
+
+	err := r.db.Where("user_id = ? AND ("+
+		"(LOWER(title) = LOWER(?) AND LOWER(author) = LOWER(?)) "+
+		"OR (isbn != '' AND isbn = ?))",
+		userID, title, author, isbn).First(&book).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return &book, nil
 }
 
 func (r *bookRepository) GetBooksByUserID(userID uint) ([]models.Book, error) {
 	var books []models.Book
-
 	err := r.db.Preload("Progress").Where("user_id = ?", userID).Find(&books).Error
 	return books, err
 }
-func (r *bookRepository) GetBookByID(bookID uint, userID uint) (*models.Book, error) {
+
+func (r *bookRepository) GetBookByID(id uint, userID uint) (*models.Book, error) {
 	var book models.Book
-	err := r.db.Where("id = ? AND user_id = ?", bookID, userID).First(&book).Error
+	err := r.db.Where("id = ? AND user_id = ?", id, userID).First(&book).Error
 	return &book, err
 }
 
@@ -58,9 +82,7 @@ func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, err
 
 	r.db.Table("reading_progresses").
 		Joins("JOIN books ON books.id = reading_progresses.book_id").
-		Where("books.user_id = ?", userID).
-		Where("reading_progresses.status = ?", "Finished").
-		Where("EXTRACT(YEAR FROM reading_progresses.last_updated) = ?", currentYear).
+		Where("books.user_id = ? AND reading_progresses.status = ? AND EXTRACT(YEAR FROM reading_progresses.last_updated) = ?", userID, "Finished", currentYear).
 		Count(&stats.BooksFinished)
 
 	r.db.Table("reading_progresses").
@@ -74,14 +96,10 @@ func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, err
 
 	return stats, nil
 }
+
 func (r *bookRepository) SearchBooks(userID uint, query string) ([]models.Book, error) {
 	var books []models.Book
-
 	searchTerm := "%" + query + "%"
-
-	err := r.db.Preload("Progress").
-		Where("user_id = ? AND title ILIKE ?", userID, searchTerm).
-		Find(&books).Error
-
+	err := r.db.Preload("Progress").Where("user_id = ? AND title ILIKE ?", userID, searchTerm).Find(&books).Error
 	return books, err
 }

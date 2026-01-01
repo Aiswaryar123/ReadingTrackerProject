@@ -23,7 +23,9 @@ func getIDFromContext(c *gin.Context) uint {
 }
 
 func (h *BookHandler) AddBook(c *gin.Context) {
-	userID := getIDFromContext(c)
+	id, _ := c.Get("user_id")
+	userID := id.(uint)
+
 	var req dto.CreateBookRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -32,9 +34,11 @@ func (h *BookHandler) AddBook(c *gin.Context) {
 
 	book, err := h.service.CreateBook(userID, req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add book"})
+
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusCreated, book)
 }
 

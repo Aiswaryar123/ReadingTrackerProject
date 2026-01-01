@@ -102,14 +102,14 @@ function MyBooks() {
               My Library
             </h1>
             <p className="text-slate-500 mt-2 font-medium">
-              Manage your collection of {books.length} titles.
+              Manage your collection of Books
             </p>
           </div>
           <button
             onClick={() => navigate("/add-book")}
             className="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-widest px-10 py-5 rounded-[1.5rem] shadow-xl transition-all active:scale-95"
           >
-            + Add New Title
+            + Add New Book
           </button>
         </div>
 

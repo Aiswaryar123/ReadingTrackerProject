@@ -27,8 +27,11 @@ func (f *FakeBookRepo) CreateBook(b *models.Book) error {
 	f.Books = append(f.Books, *b)
 	return nil
 }
+func (f *FakeBookRepo) FindDuplicate(userID uint, title string, author string, isbn string) (*models.Book, error) {
+	return nil, nil
+}
 func (f *FakeBookRepo) SearchBooks(userID uint, query string) ([]models.Book, error) {
-	// Return empty list and no error just to satisfy the interface
+
 	return []models.Book{}, nil
 }
 func (f *FakeBookRepo) GetBooksByUserID(uid uint) ([]models.Book, error) {

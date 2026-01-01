@@ -150,7 +150,7 @@ function Dashboard() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                   <div>
                     <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">
-                      2025 Reading Challenge
+                      2026 Reading Challenge
                     </h2>
                     <div className="flex items-center mt-2 space-x-2">
                       <span className="flex h-2 w-2 rounded-full bg-blue-600"></span>
