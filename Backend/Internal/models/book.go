@@ -3,9 +3,10 @@ package models
 import "time"
 
 type Book struct {
-	ID uint `json:"id" gorm:"primaryKey"`
+	ID     uint `json:"id" gorm:"primaryKey"`
+	UserID uint `json:"user_id" gorm:"not null"`
 
-	UserID uint   `json:"user_id" gorm:"not null;uniqueIndex:idx_user_title_author"`
+	User   User   `json:"user" gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 	Title  string `json:"title" gorm:"not null;uniqueIndex:idx_user_title_author"`
 	Author string `json:"author" gorm:"not null;uniqueIndex:idx_user_title_author"`
 

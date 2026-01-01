@@ -112,7 +112,7 @@ function MyBooks() {
               My Library
             </h1>
             <p className="text-slate-500 mt-4 text-lg font-medium">
-              Manage your collection of {books.length} titles.
+              Manage your collection of books
             </p>
           </div>
           <button

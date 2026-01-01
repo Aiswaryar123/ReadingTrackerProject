@@ -10,13 +10,17 @@ import (
 
 type FakeBookRepoForReview struct {
 	UserOwnsBook bool
+	MockBook     *models.Book
 }
 
 func (f *FakeBookRepoForReview) GetBookByID(id uint, uid uint) (*models.Book, error) {
 	if !f.UserOwnsBook {
 		return nil, errors.New("book not found")
 	}
-	return &models.Book{ID: id, UserID: uid, TotalPages: 300}, nil
+	if f.MockBook != nil {
+		return f.MockBook, nil
+	}
+	return &models.Book{ID: id, UserID: uid, ISBN: "978123", TotalPages: 300}, nil
 }
 
 func (f *FakeBookRepoForReview) CreateBook(b *models.Book) error                  { return nil }
@@ -29,7 +33,6 @@ func (f *FakeBookRepoForReview) GetDashboardStats(userID uint) (dto.DashboardSta
 func (f *FakeBookRepoForReview) SearchBooks(userID uint, query string) ([]models.Book, error) {
 	return []models.Book{}, nil
 }
-
 func (f *FakeBookRepoForReview) FindDuplicate(userID uint, title string, author string, isbn string) (*models.Book, error) {
 	return nil, nil
 }
@@ -58,14 +61,21 @@ func (f *FakeReviewRepo) GetReviewByBookID(bookID uint) (*models.Review, error) 
 	return nil, nil
 }
 
+func (f *FakeReviewRepo) GetReviewsByISBN(isbn string) ([]models.Review, error) {
+
+	return f.Reviews, nil
+}
+
 func TestAddReview_BookNotFound(t *testing.T) {
 	bookRepo := &FakeBookRepoForReview{UserOwnsBook: false}
 	reviewRepo := &FakeReviewRepo{}
 	service := NewReviewService(reviewRepo, bookRepo)
+
 	req := dto.CreateReviewRequest{Rating: 5, Comment: "Great!"}
 	err := service.AddReview(1, 99, req)
+
 	if err == nil {
-		t.Errorf("Expected error, but got nil")
+		t.Errorf("Expected 'book not found' error, but got nil")
 	}
 }
 
@@ -73,39 +83,52 @@ func TestAddReview_Success(t *testing.T) {
 	bookRepo := &FakeBookRepoForReview{UserOwnsBook: true}
 	reviewRepo := &FakeReviewRepo{}
 	service := NewReviewService(reviewRepo, bookRepo)
+
 	req := dto.CreateReviewRequest{Rating: 4, Comment: "Good read"}
 	err := service.AddReview(1, 10, req)
+
 	if err != nil {
-		t.Errorf("Expected success, got %v", err)
+		t.Errorf("Expected success, but got error: %v", err)
 	}
 	if reviewRepo.SavedReview.Rating != 4 {
-		t.Errorf("Got %d", reviewRepo.SavedReview.Rating)
+		t.Errorf("Expected saved rating 4, but got %d", reviewRepo.SavedReview.Rating)
 	}
 }
 
 func TestGetBookReviews_Success(t *testing.T) {
-	bookRepo := &FakeBookRepoForReview{UserOwnsBook: true}
+
+	bookRepo := &FakeBookRepoForReview{
+		UserOwnsBook: true,
+		MockBook:     &models.Book{ID: 10, ISBN: "978123"},
+	}
+
 	reviewRepo := &FakeReviewRepo{
-		Reviews: []models.Review{{Rating: 5, Comment: "Great!"}},
+		Reviews: []models.Review{{Rating: 5, Comment: "Community Review"}},
 	}
 	service := NewReviewService(reviewRepo, bookRepo)
+
 	reviews, err := service.GetBookReviews(1, 10)
+
 	if err != nil {
-		t.Errorf("Expected success, got %v", err)
+		t.Errorf("Expected success, but got error: %v", err)
 	}
 	if len(reviews) == 0 {
-		t.Errorf("Expected reviews list")
+		t.Errorf("Expected to get reviews, but list was empty")
 	}
 }
 
 func TestAddReview_DuplicateCheck(t *testing.T) {
 	bookRepo := &FakeBookRepoForReview{UserOwnsBook: true}
 	existingReview := models.Review{BookID: 10, Rating: 5, Comment: "Already exists"}
-	reviewRepo := &FakeReviewRepo{Reviews: []models.Review{existingReview}}
+	reviewRepo := &FakeReviewRepo{
+		Reviews: []models.Review{existingReview},
+	}
 	service := NewReviewService(reviewRepo, bookRepo)
+
 	req := dto.CreateReviewRequest{Rating: 1, Comment: "Spam"}
 	err := service.AddReview(1, 10, req)
+
 	if err == nil {
-		t.Errorf("Expected error for duplicate")
+		t.Errorf("Expected error for duplicate review, but got nil")
 	}
 }

@@ -9,6 +9,7 @@ type ReviewRepository interface {
 	CreateReview(review *models.Review) error
 	GetReviewsByBookID(bookID uint) ([]models.Review, error)
 	GetReviewByBookID(bookID uint) (*models.Review, error)
+	GetReviewsByISBN(isbn string) ([]models.Review, error)
 }
 
 type reviewRepository struct {
@@ -35,4 +36,18 @@ func (r *reviewRepository) GetReviewByBookID(bookID uint) (*models.Review, error
 		return nil, err
 	}
 	return &review, nil
+}
+func (r *reviewRepository) GetReviewsByISBN(isbn string) ([]models.Review, error) {
+	var reviews []models.Review
+
+	err := r.db.
+		Preload("Book.User").
+		Table("reviews").
+		Select("reviews.*").
+		Joins("JOIN books ON books.id = reviews.book_id").
+		Where("books.isbn = ? AND books.isbn != ''", isbn).
+		Order("reviews.created_at desc").
+		Find(&reviews).Error
+
+	return reviews, err
 }

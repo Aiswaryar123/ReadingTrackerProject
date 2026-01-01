@@ -48,9 +48,13 @@ func (s *reviewService) AddReview(userID uint, bookID uint, req dto.CreateReview
 
 func (s *reviewService) GetBookReviews(userID uint, bookID uint) ([]models.Review, error) {
 
-	_, err := s.bookRepo.GetBookByID(bookID, userID)
+	book, err := s.bookRepo.GetBookByID(bookID, userID)
 	if err != nil {
 		return nil, errors.New("access denied")
+	}
+
+	if book.ISBN != "" {
+		return s.repo.GetReviewsByISBN(book.ISBN)
 	}
 
 	return s.repo.GetReviewsByBookID(bookID)
