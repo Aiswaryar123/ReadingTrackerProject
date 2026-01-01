@@ -22,7 +22,7 @@ function AddBook() {
 
   const validateForm = () => {
     const { title, author, total_pages, publication_year } = formData;
-    const currentYear = new Date().getFullYear(); // This will be 2026
+    const currentYear = new Date().getFullYear();
 
     if (title.trim().length < 2) return "Book title is too short.";
     if (/^\d+$/.test(title)) return "Title cannot be only numbers.";
@@ -35,7 +35,7 @@ function AddBook() {
 
     if (publication_year) {
       const year = parseInt(publication_year);
-      // Logic: Between year 1000 and 2026
+
       if (year < 1000 || year > currentYear) {
         return `Publication year must be between 1000 and ${currentYear}.`;
       }
@@ -47,7 +47,6 @@ function AddBook() {
     e.preventDefault();
     setError("");
 
-    // 1. Frontend validation for 2026
     const currentYear = 2026;
     if (parseInt(formData.total_pages) <= 0) {
       setError("Total pages must be greater than 0.");
@@ -73,8 +72,6 @@ function AddBook() {
       alert("Book added successfully!");
       navigate("/books");
     } catch (err) {
-      // 2. Logic: Extract the specific "error" field from the Backend JSON
-      // If backend sends {"error": "this book already exists"}, serverMessage becomes that string.
       const serverMessage =
         err.response?.data?.error || "Failed to save book. Please try again.";
       setError(serverMessage);

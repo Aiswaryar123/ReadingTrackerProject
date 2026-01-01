@@ -33,10 +33,13 @@ func RegisterRoutes(
 			protected.PUT("/books/:id/progress", progressHandler.UpdateProgress)
 			protected.POST("/books/:id/reviews", reviewHandler.AddReview)
 			protected.GET("/books/:id/reviews", reviewHandler.GetReviews)
-			protected.POST("/goals", goalHandler.SetGoal)
-			protected.GET("/goals/:year", goalHandler.GetGoalStatus)
+
 			protected.GET("/dashboard", bookHandler.GetDashboard)
 			protected.GET("/books/search", bookHandler.SearchBooks)
+
+			protected.POST("/goals", goalHandler.SetGoal)
+
+			protected.GET("/goals/:year/:month", goalHandler.GetGoalStatus)
 		}
 	}
 }

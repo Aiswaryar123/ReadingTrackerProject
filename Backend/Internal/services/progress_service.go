@@ -33,12 +33,20 @@ func (s *progressService) UpdateProgress(userID uint, bookID uint, req dto.Updat
 		return errors.New("access denied: you do not own this book")
 	}
 
+	if req.Status == "Want to Read" {
+		req.CurrentPage = 0
+	}
+
 	if req.CurrentPage > book.TotalPages {
 		return fmt.Errorf("invalid page: this book only has %d pages", book.TotalPages)
 	}
 
+	if req.CurrentPage == book.TotalPages && book.TotalPages > 0 {
+		req.Status = "Finished"
+	}
+
 	if req.Status == "Finished" && req.CurrentPage < book.TotalPages {
-		return fmt.Errorf("to mark as Finished, you must reach page %d", book.TotalPages)
+		return fmt.Errorf("to mark as Finished, you must reach the final page (%d)", book.TotalPages)
 	}
 
 	progress, err := s.repo.GetByBookID(bookID)

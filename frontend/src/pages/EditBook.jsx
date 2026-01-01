@@ -46,16 +46,16 @@ function EditBook() {
 
     try {
       await api.put(`/books/${id}`, {
-        ...formData,
+        title: formData.title,
+        author: formData.author,
+
         total_pages: parseInt(formData.total_pages) || 0,
       });
 
-      alert("Changes saved successfully!");
+      alert("Book updated successfully!");
       navigate("/books");
     } catch (err) {
-      setError(
-        err.response?.data?.error || "Failed to update book. Please try again."
-      );
+      setError("Failed to update book details.");
     } finally {
       setIsSubmitting(false);
     }

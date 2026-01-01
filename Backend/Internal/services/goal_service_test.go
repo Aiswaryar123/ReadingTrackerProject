@@ -21,25 +21,33 @@ func (f *FakeGoalRepo) SaveGoal(goal *models.ReadingGoal) error {
 	return f.Err
 }
 
-func (f *FakeGoalRepo) GetGoal(userID uint, year int) (*models.ReadingGoal, error) {
+func (f *FakeGoalRepo) GetGoal(userID uint, year int, month int) (*models.ReadingGoal, error) {
 	if f.Err != nil {
 		return nil, f.Err
 	}
 	return f.Goal, nil
 }
 
-func (f *FakeGoalRepo) CountFinishedBooks(userID uint, year int) (int64, error) {
+func (f *FakeGoalRepo) CountFinishedBooks(userID uint, year int, month int) (int64, error) {
 	return f.Count, nil
 }
+
+func (f *FakeGoalRepo) GetYearlyTotalTarget(userID uint, year int) (int, error) {
+	if f.Goal != nil {
+		return f.Goal.TargetBooks, nil
+	}
+	return 0, f.Err
+}
+
 func TestGetGoalProgress_NotCompleted(t *testing.T) {
 
 	repo := &FakeGoalRepo{
-		Goal:  &models.ReadingGoal{Year: 2025, TargetBooks: 5},
+		Goal:  &models.ReadingGoal{Year: 2026, Month: 1, TargetBooks: 5},
 		Count: 2,
 	}
-	service := NewGoalService(repo)
+	goalService := NewGoalService(repo)
 
-	result, err := service.GetProgress(1, 2025)
+	result, err := goalService.GetProgress(1, 2026, 1)
 
 	if err != nil {
 		t.Errorf("Expected no error, but got %v", err)
@@ -52,12 +60,12 @@ func TestGetGoalProgress_NotCompleted(t *testing.T) {
 func TestGetGoalProgress_Completed(t *testing.T) {
 
 	repo := &FakeGoalRepo{
-		Goal:  &models.ReadingGoal{Year: 2025, TargetBooks: 3},
+		Goal:  &models.ReadingGoal{Year: 2026, Month: 1, TargetBooks: 3},
 		Count: 3,
 	}
-	service := NewGoalService(repo)
+	goalService := NewGoalService(repo)
 
-	result, err := service.GetProgress(1, 2025)
+	result, err := goalService.GetProgress(1, 2026, 1)
 
 	if err != nil {
 		t.Errorf("Expected no error, but got %v", err)
@@ -68,51 +76,50 @@ func TestGetGoalProgress_Completed(t *testing.T) {
 }
 
 func TestGetGoalProgress_NotFound(t *testing.T) {
-
 	repo := &FakeGoalRepo{
 		Err: errors.New("record not found"),
 	}
-	service := NewGoalService(repo)
+	goalService := NewGoalService(repo)
 
-	_, err := service.GetProgress(1, 2030)
+	_, err := goalService.GetProgress(1, 2030, 1)
 
 	if err == nil {
-		t.Errorf("Expected an error for a year with no goal, but got nil")
+		t.Errorf("Expected an error for a missing goal, but got nil")
 	}
 }
 
 func TestSetUserGoal_Success(t *testing.T) {
 	repo := &FakeGoalRepo{}
-	service := NewGoalService(repo)
+	goalService := NewGoalService(repo)
 
 	req := dto.SetGoalRequest{
-		Year:        2025,
+		Year:        2026,
+		Month:       1,
 		TargetBooks: 10,
 	}
 
-	err := service.SetUserGoal(1, req)
+	err := goalService.SetUserGoal(1, req)
 
 	if err != nil {
 		t.Errorf("Expected no error, but got %v", err)
 	}
 
 	if !repo.SaveCalled {
-		t.Errorf("Expected repository SaveGoal to be called, but it wasn't")
+		t.Errorf("Expected repository SaveGoal to be called")
 	}
 
-	if repo.Goal.TargetBooks != 10 {
-		t.Errorf("Expected target 10, but got %d", repo.Goal.TargetBooks)
+	if repo.Goal.Month != 1 {
+		t.Errorf("Expected month 1 to be saved, but got %d", repo.Goal.Month)
 	}
 }
 
 func TestGetProgress_RepoError(t *testing.T) {
-
 	repo := &FakeGoalRepo{
 		Err: errors.New("database connection failed"),
 	}
-	service := NewGoalService(repo)
+	goalService := NewGoalService(repo)
 
-	_, err := service.GetProgress(1, 2025)
+	_, err := goalService.GetProgress(1, 2026, 1)
 
 	if err == nil {
 		t.Errorf("Expected error from repository, but got nil")

@@ -55,10 +55,13 @@ func (s *bookService) FetchBooks(userID uint) ([]models.Book, error) {
 }
 
 func (s *bookService) UpdateBook(bookID uint, userID uint, req dto.UpdateBookRequest) error {
+
 	book := &models.Book{
-		Title:  req.Title,
-		Author: req.Author,
+		Title:      req.Title,
+		Author:     req.Author,
+		TotalPages: req.TotalPages,
 	}
+
 	return s.repo.UpdateBook(bookID, userID, book)
 }
 

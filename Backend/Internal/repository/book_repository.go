@@ -32,7 +32,6 @@ func NewBookRepository(db *gorm.DB) BookRepository {
 func (r *bookRepository) CreateBook(book *models.Book) error {
 	err := r.db.Create(book).Error
 	if err != nil {
-
 		if strings.Contains(err.Error(), "23505") || strings.Contains(err.Error(), "unique") {
 			return errors.New("this book is already in your library")
 		}
@@ -40,12 +39,10 @@ func (r *bookRepository) CreateBook(book *models.Book) error {
 	}
 	return nil
 }
+
 func (r *bookRepository) FindDuplicate(userID uint, title string, author string, isbn string) (*models.Book, error) {
 	var book models.Book
-
-	err := r.db.Where("user_id = ? AND ("+
-		"(LOWER(title) = LOWER(?) AND LOWER(author) = LOWER(?)) "+
-		"OR (isbn != '' AND isbn = ?))",
+	err := r.db.Where("user_id = ? AND ((LOWER(title) = LOWER(?) AND LOWER(author) = LOWER(?)) OR (isbn != '' AND isbn = ?))",
 		userID, title, author, isbn).First(&book).Error
 
 	if err != nil {
@@ -71,28 +68,64 @@ func (r *bookRepository) UpdateBook(bookID uint, userID uint, book *models.Book)
 }
 
 func (r *bookRepository) DeleteBook(id uint, userID uint) error {
-	return r.db.Where("id = ? AND user_id = ?", id, userID).Delete(&models.Book{}).Error
+
+	r.db.Where("book_id = ?", id).Delete(&models.ReadingProgress{})
+	r.db.Where("book_id = ?", id).Delete(&models.Review{})
+
+	result := r.db.Where("id = ? AND user_id = ?", id, userID).Delete(&models.Book{})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("book not found or you don't have permission to delete it")
+	}
+
+	return nil
 }
 
 func (r *bookRepository) GetDashboardStats(userID uint) (dto.DashboardStats, error) {
 	var stats dto.DashboardStats
-	currentYear := time.Now().Year()
+	now := time.Now()
+	currentYear := now.Year()
+	currentMonth := int(now.Month())
 
 	r.db.Model(&models.Book{}).Where("user_id = ?", userID).Count(&stats.TotalBooks)
 
-	r.db.Table("reading_progresses").
-		Joins("JOIN books ON books.id = reading_progresses.book_id").
-		Where("books.user_id = ? AND reading_progresses.status = ? AND EXTRACT(YEAR FROM reading_progresses.last_updated) = ?", userID, "Finished", currentYear).
-		Count(&stats.BooksFinished)
-
+	// currently reading count
 	r.db.Table("reading_progresses").
 		Joins("JOIN books ON books.id = reading_progresses.book_id").
 		Where("books.user_id = ? AND reading_progresses.status = ?", userID, "Currently Reading").
 		Count(&stats.CurrentlyReading)
 
-	var goal models.ReadingGoal
-	r.db.Where("user_id = ? AND year = ?", userID, currentYear).First(&goal)
-	stats.GoalTarget = goal.TargetBooks
+	//  yearly finished
+	r.db.Table("reading_progresses").
+		Joins("JOIN books ON books.id = reading_progresses.book_id").
+		Where("books.user_id = ? AND reading_progresses.status = ? AND EXTRACT(YEAR FROM reading_progresses.last_updated) = ?", userID, "Finished", currentYear).
+		Count(&stats.BooksFinished)
+
+	// 4. monthly finished
+	r.db.Table("reading_progresses").
+		Joins("JOIN books ON books.id = reading_progresses.book_id").
+		Where("books.user_id = ? AND reading_progresses.status = ? AND EXTRACT(YEAR FROM reading_progresses.last_updated) = ? AND EXTRACT(MONTH FROM reading_progresses.last_updated) = ?", userID, "Finished", currentYear, currentMonth).
+		Count(&stats.MonthlyFinished)
+
+	//  yearly target
+	var totalTarget int64
+	r.db.Model(&models.ReadingGoal{}).
+		Where("user_id = ? AND year = ?", userID, currentYear).
+		Select("COALESCE(SUM(target_books), 0)").Scan(&totalTarget)
+	stats.YearlyTarget = int(totalTarget)
+
+	//  current monthly target
+	var mGoal models.ReadingGoal
+	r.db.Where("user_id = ? AND year = ? AND month = ?", userID, currentYear, currentMonth).First(&mGoal)
+	stats.MonthlyTarget = mGoal.TargetBooks
+
+	r.db.Model(&models.ReadingGoal{}).
+		Where("user_id = ? AND year = ?", userID, currentYear).
+		Count(&stats.GoalsSetCount)
 
 	return stats, nil
 }

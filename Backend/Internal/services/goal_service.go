@@ -8,7 +8,7 @@ import (
 
 type GoalService interface {
 	SetUserGoal(userID uint, req dto.SetGoalRequest) error
-	GetProgress(userID uint, year int) (*dto.GoalProgressResponse, error)
+	GetProgress(userID uint, year int, month int) (*dto.GoalProgressResponse, error)
 }
 
 type goalService struct {
@@ -23,20 +23,20 @@ func (s *goalService) SetUserGoal(userID uint, req dto.SetGoalRequest) error {
 	goal := &models.ReadingGoal{
 		UserID:      userID,
 		Year:        req.Year,
+		Month:       req.Month,
 		TargetBooks: req.TargetBooks,
 	}
-
 	return s.repo.SaveGoal(goal)
 }
 
-func (s *goalService) GetProgress(userID uint, year int) (*dto.GoalProgressResponse, error) {
+func (s *goalService) GetProgress(userID uint, year int, month int) (*dto.GoalProgressResponse, error) {
 
-	goal, err := s.repo.GetGoal(userID, year)
+	goal, err := s.repo.GetGoal(userID, year, month)
 	if err != nil {
 		return nil, err
 	}
 
-	finishedCount, err := s.repo.CountFinishedBooks(userID, year)
+	finishedCount, err := s.repo.CountFinishedBooks(userID, year, month)
 	if err != nil {
 		return nil, err
 	}

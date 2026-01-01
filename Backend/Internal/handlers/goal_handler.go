@@ -35,10 +35,13 @@ func (h *GoalHandler) SetGoal(c *gin.Context) {
 func (h *GoalHandler) GetGoalStatus(c *gin.Context) {
 	val, _ := c.Get("user_id")
 	userID := val.(uint)
+
 	year, _ := strconv.Atoi(c.Param("year"))
-	status, err := h.service.GetProgress(userID, year)
+	month, _ := strconv.Atoi(c.Param("month"))
+
+	status, err := h.service.GetProgress(userID, year, month)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No goal found for this year"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "No goal found for this period"})
 		return
 	}
 	c.JSON(http.StatusOK, status)
