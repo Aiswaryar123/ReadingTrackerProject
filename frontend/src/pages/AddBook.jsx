@@ -22,11 +22,10 @@ function AddBook() {
 
   const validateForm = () => {
     const { title, author, total_pages, publication_year } = formData;
-    const currentYear = new Date().getFullYear();
+    const currentYear = 2026;
 
     if (title.trim().length < 2) return "Book title is too short.";
     if (/^\d+$/.test(title)) return "Title cannot be only numbers.";
-
     if (author.trim().length < 2) return "Author name is too short.";
 
     const pages = parseInt(total_pages);
@@ -35,7 +34,6 @@ function AddBook() {
 
     if (publication_year) {
       const year = parseInt(publication_year);
-
       if (year < 1000 || year > currentYear) {
         return `Publication year must be between 1000 and ${currentYear}.`;
       }
@@ -47,17 +45,10 @@ function AddBook() {
     e.preventDefault();
     setError("");
 
-    const currentYear = 2026;
-    if (parseInt(formData.total_pages) <= 0) {
-      setError("Total pages must be greater than 0.");
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       return;
-    }
-    if (formData.publication_year) {
-      const year = parseInt(formData.publication_year);
-      if (year < 1000 || year > currentYear) {
-        setError(`Publication year must be between 1000 and ${currentYear}.`);
-        return;
-      }
     }
 
     setIsSubmitting(true);
@@ -88,16 +79,16 @@ function AddBook() {
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
             Expand Library
           </h1>
-          <p className="mt-2 text-slate-500 text-lg font-medium">
-            Registering a new title for the year {new Date().getFullYear()}.
+          <p className="text-slate-500 mt-2 font-medium">
+            Fill in the details to catalog a new title in your collection.
           </p>
         </header>
 
         <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-slate-50 rounded-full opacity-50 flex items-center justify-center pt-8 pl-4">
-            <span className="text-6xl grayscale opacity-10 font-bold italic">
+          <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-slate-50 rounded-full opacity-50 flex items-center justify-center pt-8 pl-4 pointer-events-none">
+            {/* <span className="text-6xl grayscale opacity-10 font-black italic">
               2026
-            </span>
+            </span> */}
           </div>
 
           <div className="relative z-10">
@@ -123,7 +114,7 @@ function AddBook() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-2xl shadow-sm animate-bounce">
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-2xl shadow-sm animate-pulse">
                 <p className="text-red-700 font-bold text-sm">⚠️ {error}</p>
               </div>
             )}
@@ -156,9 +147,10 @@ function AddBook() {
                     value={formData.author}
                     onChange={handleChange}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
-                    placeholder="Basheer"
+                    placeholder="e.g. Vaikom Muhammad Basheer"
                   />
                 </div>
+
                 <div>
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
                     ISBN Code
@@ -169,7 +161,7 @@ function AddBook() {
                     value={formData.isbn}
                     onChange={handleChange}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
-                    placeholder="Unique ID"
+                    placeholder="International Standard Book Number"
                   />
                 </div>
               </div>
@@ -185,9 +177,10 @@ function AddBook() {
                     value={formData.genre}
                     onChange={handleChange}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
-                    placeholder="Classic"
+                    placeholder="e.g. Fiction"
                   />
                 </div>
+
                 <div>
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
                     Year (1000-2026)
@@ -201,6 +194,7 @@ function AddBook() {
                     placeholder="2026"
                   />
                 </div>
+
                 <div>
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">
                     Total Pages *
@@ -212,7 +206,7 @@ function AddBook() {
                     value={formData.total_pages}
                     onChange={handleChange}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-slate-700"
-                    placeholder="300"
+                    placeholder="e.g. 300"
                   />
                 </div>
               </div>
@@ -221,9 +215,9 @@ function AddBook() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-slate-900 text-white font-black text-xs uppercase tracking-widest py-5 rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50"
+                  className="w-full sm:flex-1 bg-slate-900 text-white font-black text-xs uppercase tracking-widest py-5 rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "Checking Database..." : "Add to Library"}
+                  {isSubmitting ? "Validating Entry..." : "Save to Shelf"}
                 </button>
                 <button
                   type="button"
